@@ -1,0 +1,15 @@
+services:
+  office-bday-db:
+    container_name: office-bday-db
+    image: postgres:17.4-alpine
+    environment:
+      POSTGRES_DB: office-bday
+      POSTGRES_USER: office-bday
+      POSTGRES_PASSWORD: office-bday
+    ports:
+      - "5432:5432"
+    volumes:
+      - office-bday-db-data:/var/lib/postgresql/data
+
+volumes:
+  office-bday-db-data:
