@@ -18,3 +18,5 @@ export const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWD, {
   dialectModule: mysql2,
   logging: ENVIROMENT === 'dev'
 });
+
+sequelize.sync({alter: true});
