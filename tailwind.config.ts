@@ -8,6 +8,9 @@ import type { Config } from "tailwindcss";
    ],
    darkMode: 'selector',
   theme: {
+    fontFamily: {
+      customFont: ["-apple-system","BlinkMacSystemFont","Segoe UI","Noto Sans","Helvetica","Arial","sans-serif","Apple Color Emoji","Segoe UI Emoji"]
+    },
     extend: {
       colors: {
         background: "var(--background)",
