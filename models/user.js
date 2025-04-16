@@ -3,14 +3,14 @@ import { sequelize } from "../db/connectionDB";
 import { genSalt, hash } from "bcrypt";
 
 const User = sequelize.define("Users", {
-  firstName: {
+  first_name: {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
       len: [2, 50],
     },
   },
-  lastName: {
+  last_name: {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
@@ -24,7 +24,7 @@ const User = sequelize.define("Users", {
     validate: {
       len: [2, 100],
       isEmail: {
-        msg: "Please provide an valid email",
+        msg: "Invalid email address",
       },
     },
   },

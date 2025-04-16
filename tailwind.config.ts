@@ -6,7 +6,7 @@ import type { Config } from "tailwindcss";
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
    ],
-   darkMode: 'selector',
+   darkMode: 'media',
   theme: {
     fontFamily: {
       customFont: ["-apple-system","BlinkMacSystemFont","Segoe UI","Noto Sans","Helvetica","Arial","sans-serif","Apple Color Emoji","Segoe UI Emoji"]

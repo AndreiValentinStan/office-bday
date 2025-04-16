@@ -16,6 +16,7 @@ export default function SignInButton({ text, style, setError }) {
         headers: {
           "Content-Type": "application/json",
         },
+        redirect: "follow",
         body: JSON.stringify({
           email: email,
           password: password,
