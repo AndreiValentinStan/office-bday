@@ -26,6 +26,8 @@ export default function Sidebar() {
           <div className="flex flex-col pt-10 gap-y-2 text-xl text-white">
             <Link className="hover:scale-125 origin-left" href="/employees">Employees</Link>
             <Link className="hover:scale-125 origin-left" href="/settings">Settings</Link>
+            <Link className="hover:scale-125 origin-left" href="/profile">Profile</Link>
+            <Link className="hover:scale-125 origin-left" href="/Accounts">Accounts</Link>
           </div>
           {/* logout button */}
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
