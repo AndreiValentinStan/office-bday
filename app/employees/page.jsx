@@ -5,11 +5,13 @@ import Filter from "../../components/ui/filters/Filter";
 import EmployeesTable from "../../components/ui/employees/EmployeesTable";
 import PageCounter from "../../components/ui/employees/PageCounter";
 import OutsideWrapper from "../../components/hooks/OutsideClick";
+import AddEmployeesModal from "../../components/ui/employees/AddEmployeeModal";
 
 export default function Employees() {
   const sectionsStyle = "w-full bg-gray-100 p-4 rounded-sm";
   const titleStyle = "font-semibold text-md uppercase";
   const [clickOutside, setClickOutside] = useState(false);
+  const [showAddEmployeesModal, setShowAddEmployeesModal] = useState(false);
 
   // filter
   // filter state
@@ -108,7 +110,10 @@ export default function Employees() {
           <span className="uppercase text-lg font-semibold">
             Employees manager
           </span>
-          <button className="bg-blue-500 text-white px-6 py-2 rounded-sm">
+          <button
+            className="bg-blue-500 text-white px-6 py-2 rounded-sm"
+            onClick={() => setShowAddEmployeesModal(true)}
+          >
             Add Employees
           </button>
         </header>
@@ -158,7 +163,12 @@ export default function Employees() {
         {/* employees list */}
         <section className={`${sectionsStyle} flex flex-col gap-y-5`}>
           <OutsideWrapper stateHanlder={setClickOutside}>
-            <EmployeesTable employees={employees} loadingStatus={isLoading} clickOutside={clickOutside} setClickOutside={setClickOutside}>
+            <EmployeesTable
+              employees={employees}
+              loadingStatus={isLoading}
+              clickOutside={clickOutside}
+              setClickOutside={setClickOutside}
+            >
               <PageCounter setPageSize={pageSizeHandler} pageSize={pageSize} />
             </EmployeesTable>
           </OutsideWrapper>
@@ -173,6 +183,8 @@ export default function Employees() {
           <span>{">"}</span>
         </section>
       </div>
+      {/* add employees modal */}
+      <AddEmployeesModal setIsModalDisplayed={setShowAddEmployeesModal} isModalDisplayed={showAddEmployeesModal}/>
     </>
   );
 }
