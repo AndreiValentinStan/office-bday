@@ -1,24 +1,31 @@
-import { DataTypes } from "sequelize";
 import { sequelize } from "../db/connectionDB";
-import { genSalt, hash } from "bcrypt";
+import { genSalt, hash } from "bcryptjs";
+
+import { STRING, UUIDV4, UUID } from "sequelize";
 
 const User = sequelize.define("Users", {
+  id: {
+    type: UUID,
+    defaultValue: UUIDV4,
+    unique: true,
+    primaryKey: true,
+  },
   first_name: {
-    type: DataTypes.STRING,
+    type: STRING,
     allowNull: false,
     validate: {
       len: [2, 50],
     },
   },
   last_name: {
-    type: DataTypes.STRING,
+    type: STRING,
     allowNull: false,
     validate: {
       len: [2, 50],
     },
   },
   email: {
-    type: DataTypes.STRING,
+    type: STRING,
     allowNull: false,
     unique: true,
     validate: {
@@ -29,15 +36,16 @@ const User = sequelize.define("Users", {
     },
   },
   password: {
-    type: DataTypes.STRING,
+    type: STRING,
     allowNull: false,
   },
 });
 
+
 User.beforeCreate(async (user) => {
-      const salt = await genSalt();
-      const hashedPasswd = await hash(user.password, salt);
-      user.password = hashedPasswd;
+  const salt = await genSalt();
+  const hashedPasswd = await hash(user.password, salt);
+  user.password = hashedPasswd;
 });
 
 export default User;

@@ -11,15 +11,14 @@ export default function SignInButton({ text, style, setError }) {
       return;
     }
     try {
-      const response = await fetch("/api/sign-in", {
+      const response = await fetch("http://127.0.0.1:3000/api/auth/sign-in", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        redirect: "follow",
         body: JSON.stringify({
-          email: email,
-          password: password,
+          email: 'test@email.com',
+          password: '1234',
         }),
       });
       if (!response || !response.ok) {
