@@ -1,4 +1,5 @@
 // used to initialize DB
+import { Axios } from "axios";
 import { sequelize } from "./db/connectionDB";
 import RefreshTokens from "./models/refreshTokens";
 import Sessions from "./models/session";
