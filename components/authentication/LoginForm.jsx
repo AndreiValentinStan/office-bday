@@ -4,10 +4,11 @@ import Link from "next/link";
 import InputElement from "../ui/InputElement";
 import SignInButton from "../ui/SingInButton";
 import ErrorToast from "../ui/ErrorToast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function LoginForm() {
   const [signInError, setSignInError] = useState("");
+
   return (
     <div className="flex flex-col h-dvh items-center justify-center gap-y-5 w-5/6 max-w-80 min-w-72">
       <ErrorToast
@@ -17,7 +18,7 @@ export default function LoginForm() {
         }`}
       />
       <form
-        className="bg-slate-200/25 rounded-md border-gray-200 border flex flex-col p-5 gap-y-7 items-center text-sm w-full"
+        className="bg-transparent rounded-md border-gray-200 border flex flex-col p-5 gap-y-7 items-center text-sm w-full"
         onChange={() => {
           if (signInError) return setSignInError("");
         }}
@@ -39,12 +40,12 @@ export default function LoginForm() {
           setError={setSignInError}
         />
       </form>
-      <span className="p-8 w-full text-sm rounded-md border border-gray-300 flex justify-center">
-        Don't have an account?
+      <p className="p-8 w-full text-sm rounded-md border border-gray-300 flex justify-center">
+        Don't have an account?&nbsp;
         <Link href="/register" className="text-blue-500">
           Create one
         </Link>
-      </span>
+      </p>
     </div>
   );
 }
