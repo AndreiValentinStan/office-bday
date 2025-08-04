@@ -1,6 +1,15 @@
 "use client";
+import { useRouter } from "next/router";
+import Axios from "../../utils/axios";
 
 export default function SignInButton({ text, style, setError }) {
+  const axiosInstance = Axios.getAxiosInstance({
+    baseURL: "http://localhost:3000/api",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
   const submitHandler = async (e) => {
     e.preventDefault();
     let [email, password] = e.target.form || [];
@@ -11,24 +20,24 @@ export default function SignInButton({ text, style, setError }) {
       return;
     }
     try {
-      const response = await fetch("http://127.0.0.1:3000/api/auth/sign-in", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await axiosInstance.post(
+        "auth/sign-in",
+        {
+          email,
+          password,
         },
-        body: JSON.stringify({
-          email: 'test@email.com',
-          password: '1234',
-        }),
-      });
-      if (!response || !response.ok) {
-        setError("Couldn`t process your request!");
-        return;
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (response.status === 200) {
+        //set-up access token
+        Axios.setAccessToken(response.data.accessToken);
       }
-      const data = await response.json();
-      if (data?.message) console.log(data.message);
+      e.target.form.reset();
+      
     } catch (err) {
-      console.log("Error on signing in ");
+      console.log(err);
     }
   };
   return (
