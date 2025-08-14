@@ -1,0 +1,103 @@
+import { useState } from "react";
+import { IoIosClose } from "react-icons/io";
+
+export default function AddEmployeeModal({
+  isModalDisplayed,
+  setIsModalDisplayed,
+}) {
+  const [selectedFileName, setSelectedFileName] = useState("");
+  return (
+    <section
+      className={`w-full h-full right-0 top-0 fixed select-none ${
+        isModalDisplayed ? "visible" : "invisible"
+      }`}
+    >
+      <div
+        className={`w-full h-full bg-white ${
+          isModalDisplayed ? "opacity-80" : "opacity-0"
+        }`}
+      ></div>
+      <div
+        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden transition-all duration-300 ease-in-out ${
+          isModalDisplayed ? "w-full h-full" : "w-0 h-0"
+        }`}
+      >
+        <div className="w-10/12 min-w-[1300px] min-h-[650px] absolute bg-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-[1px] border-blue-500 rounded-md flex gap-x-10 items-center justify-around p-4">
+          {/* close button */}
+          <div
+            onClick={() => setIsModalDisplayed(false)}
+            className="absolute right-1 top-1 text-gray-400 hover:text-gray-600 hover:cursor-pointer hover:bg-gray-100 p-0 rounded-md transition border "
+          >
+            <IoIosClose size={"30px"} />
+          </div>
+          {/* add employee */}
+          <div className="w-full h-full flex flex-col items-center justify-center gap-y-8 relative py-6 px-2 text-slate-700 border border-gray-200 rounded-sm">
+            <div className="absolute w-full h-full bg-gray-50 opacity-10 -z-10"></div>
+            <h1 className=" text-xl">Add employee</h1>
+            <div className="flex gap-y-2 flex-col w-4/5 text-sm">
+              {/* first name */}
+              <div className="flex w-full items-center">
+                <label className="w-[40%]">First Name</label>
+                <input className="w-full p-1 border border-blue-300 rounded-sm focus-visible:outline-blue-500 focus-visible:border-blue-200"></input>
+              </div>
+              <div className="flex w-full items-center">
+                <label className="w-[40%]">Last Name</label>
+                <input className="w-full p-1 border border-blue-300 rounded-sm   focus-visible:outline-blue-500 focus-visible:border-blue-200"></input>
+              </div>
+              <div className="flex w-full items-center">
+                <label className="w-[40%]">Parent Name</label>
+                <input className="w-full p-1 border border-blue-300 rounded-sm   focus-visible:outline-blue-500 focus-visible:border-blue-200"></input>
+              </div>
+              <div className="flex w-full items-center">
+                <label className="w-[40%]">Birth Date</label>
+                <input className="w-full p-1 border border-blue-300 rounded-sm   focus-visible:outline-blue-500 focus-visible:border-blue-200"></input>
+              </div>
+            </div>
+            <div>
+              <button className="bg-blue-500 text-white p-2 rounded-sm hover:bg-blue-600">
+                Add employee
+              </button>
+            </div>
+          </div>
+          {/* separator */}
+          <div className="h-96 border-r-[1px] border-gray-300">
+            <h1 className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 bg-white">
+              OR
+            </h1>
+          </div>
+          {/* import employees */}
+          <div className="w-full h-full flex flex-col items-center justify-center gap-y-11 py-7 relative text-slate-700 border border-gray-200 rounded-sm">
+            <div className="absolute w-full h-full bg-gray-50 opacity-10 -z-10"></div>
+            <h1 className="text-xl">Import employee</h1>
+            <div className="flex flex-col gap-y-3 items-center">
+              <p>Please select an .xlsx file to upload</p>
+              <label
+                htmlFor="file_upload"
+                className="bg-gray-200 px-5 py-2 rounded-md hover:bg-gray-300 hover:cursor-pointer"
+              >
+                Choose excel file
+              </label>
+              <input
+                className="opacity-0 absolute  w-0 h-0"
+                type="file"
+                id="file_upload"
+                accept=".xlsx"
+                onChange={(i) => {
+                  console.log("file selected");
+                  if (i.target.files[0].name)
+                    setSelectedFileName(i.target.files[0].name.toString());
+                }}
+              ></input>
+              <p>
+                {selectedFileName ? `${selectedFileName}` : "No file selected"}
+              </p>
+            </div>
+            <button className="bg-blue-500 px-5 py-2 rounded-sm text-white focus-within:outline-none hover:bg-blue-600">
+              Upload
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

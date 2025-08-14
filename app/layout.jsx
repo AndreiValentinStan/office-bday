@@ -1,12 +1,14 @@
+import Sidebar from "../components/main/Sidebar";
 import "./globals.css";
-import ThemeContainer from "../components/ui/ThemeContainer";
 
-export default function RootLayout({ children }) {
+export default function RootLayout({children}) {
   return (
     <html lang="en">
-      <body className="font-customFont">
-        <ThemeContainer />
-        {children}
+      <body>
+        <div className="w-full h-dvh flex">
+          <Sidebar/>
+          {children}
+        </div>
       </body>
     </html>
   );
