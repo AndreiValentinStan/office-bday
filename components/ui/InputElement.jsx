@@ -1,12 +1,64 @@
-export default function InputElement({label, inputType, children, required, style}) {
+"use client";
+
+import { useState } from "react";
+
+const defaultStyle = `top-1/2 -translate-y-1/2 left-4 text-gray-400 text-md absolute italic`;
+const floatStyle = `-top-[0.9rem] bg-white left-2 px-1 text-black/70 text-sm absolute italic`;
+const baseStyle = `select-none pointer-events-none font-customFont transition-all duration-150 ease-in-out`;
+
+export default function InputElement({
+  label,
+  inputType,
+  children,
+  required,
+  style,
+  name,
+  floatEffect=false
+}) {
+  const [labelStyleSelector, setLabelStyleSelector] = useState("DEFAULT");
+  const [content, setContent] = useState("");
+
+  const { containerStyle, inputStyle } = style || {};
+
+  const htmlInputFocusHandler = () => {
+    if (labelStyleSelector === "DEFAULT") setLabelStyleSelector("FLOAT");
+  };
+
+  const htmlInputBlurHandler = () => {
+    if (labelStyleSelector === "FLOAT" && !content)
+      setLabelStyleSelector("DEFAULT");
+  };
+
+  const handleTypeing = (e) => {
+    setContent(e.target.value);
+  }
+
   return (
     <>
-      <div className="flex flex-col w-full text-gray-800 gap-y-2 relative dark:text-gray-100">
-        <label className="select-none text-xl/2 font-customFont">{label}</label>
+      <div
+        className={
+          containerStyle ||
+          "flex flex-col w-full text-gray-800 gap-y-2 relative dark:text-gray-100"
+        }
+      >
+        <label
+          className={`${baseStyle} ${
+            floatEffect ? labelStyleSelector === "DEFAULT" ? defaultStyle : floatStyle : ''
+          }`}
+        >
+          {label}
+        </label>
         <input
           type={inputType}
+          name={name}
           required={required}
-          className="rounded-md border border-gray-400 h-8 focus-visible:outline-none focus:ring-1 focus:border-blue-700 focus:ring-blue-700 p-2 dark:bg-slate-800"
+          onChange={handleTypeing}
+          onFocus={htmlInputFocusHandler}
+          onBlur={htmlInputBlurHandler}
+          className={
+            inputStyle ||
+            "rounded-md border border-gray-400 h-8 focus-visible:outline-none focus:ring-1 focus:border-blue-700 focus:ring-blue-700 p-2 dark:bg-slate-800"
+          }
         ></input>
         {children}
       </div>

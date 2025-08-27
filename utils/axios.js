@@ -9,9 +9,12 @@ export default class Axios {
     );
   }
 
-  static getAxiosInstance(config) {
+  static getAxiosInstance() {
     if (!this.axiosInstance) {
-      this.axiosInstance = axios.create(config);
+      const base_url = process.env.NEXT_PUBLIC_BASE_URL || 'localhost:3000';
+      this.axiosInstance = axios.create({
+        baseURL: base_url,
+      });
     }
     return this.axiosInstance;
   }
@@ -20,6 +23,8 @@ export default class Axios {
     if (!this.axiosInstance)
       throw new Error("Can`t set access token before axios initialization");
     console.log("setting authorization header for future requests");
-    this.axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    this.axiosInstance.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${token}`;
   }
 }

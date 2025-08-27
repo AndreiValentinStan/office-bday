@@ -3,13 +3,14 @@
 
 import { StatusCodes } from "http-status-codes";
 import User from "../../../../models/user";
-import { compare, genSalt, hash } from "bcryptjs";
+import { compare } from "bcryptjs";
 import { CustomError } from "../../../../utils/CustomError";
 import Sessions from "../../../../models/session";
 import { createHash, createHmac, randomBytes } from "crypto";
 import RefreshTokens from "../../../../models/refreshTokens";
 import moment from "moment";
 import jwt from "jsonwebtoken";
+import { BaseError, EmptyResultError } from "sequelize";
 
 export async function POST(request) {
   try {
@@ -121,14 +122,19 @@ export async function POST(request) {
     return Response.json(
       {
         accessToken,
+        success: true,
       },
       {
-        status: 200,
+        status: StatusCodes.OK,
         headers: cookieHeader,
       }
     );
   } catch (error) {
     console.log("some error ocured: ", error);
+    if (error instanceof BaseError) {
+      if (error instanceof EmptyResultError)
+        error.message = "Cant find specified user";
+    }
     return Response.json(
       {
         data: null,

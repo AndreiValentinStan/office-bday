@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Filter from "../../components/ui/filters/Filter";
-import EmployeesTable from "../../components/ui/employees/EmployeesTable";
-import PageCounter from "../../components/ui/employees/PageCounter";
-import OutsideWrapper from "../../components/hooks/OutsideClick";
-import AddEmployeesModal from "../../components/ui/employees/AddEmployeeModal";
+import Filter from "../../../components/ui/filters/Filter";
+import EmployeesTable from "../../../components/ui/employees/EmployeesTable";
+import PageCounter from "../../../components/ui/employees/PageCounter";
+import OutsideWrapper from "../../../components/hooks/OutsideClick";
+import AddEmployeesModal from "../../../components/ui/employees/AddEmployeeModal";
 
 export default function Employees() {
   const sectionsStyle = "w-full bg-gray-100 p-4 rounded-sm";

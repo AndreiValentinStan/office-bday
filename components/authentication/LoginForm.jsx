@@ -4,10 +4,42 @@ import Link from "next/link";
 import InputElement from "../ui/InputElement";
 import SignInButton from "../ui/SingInButton";
 import ErrorToast from "../ui/ErrorToast";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Axios from "../../utils/axios";
 
 export default function LoginForm() {
   const [signInError, setSignInError] = useState("");
+  const axiosInstance = Axios.getAxiosInstance();
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    let [email, password] = e.target.form || [];
+    email = email.value;
+    password = password.value;
+    if (!email || !password) {
+      setSignInError("Please provide email and password");
+      return;
+    }
+    try {
+      const response = await axiosInstance.post(
+        "auth/sign-in",
+        {
+          email,
+          password,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (response.status === 200) {
+        //set-up access token
+        Axios.setAccessToken(response.data.accessToken);
+      }
+      e.target.form.reset();
+    } catch (err) {
+      setSignInError(err?.response?.data?.message || 'Unexpected error from the server');
+    }
+  };
 
   return (
     <div className="flex flex-col h-dvh items-center justify-center gap-y-5 w-5/6 max-w-80 min-w-72">
@@ -38,6 +70,7 @@ export default function LoginForm() {
           }
           text="Sign In"
           setError={setSignInError}
+          handler={submitHandler}
         />
       </form>
       <p className="p-8 w-full text-sm rounded-md border border-gray-300 flex justify-center">
