@@ -18,7 +18,7 @@ const Employee = sequelize.define("Employees", {
     validate: {
       len: {
         args: [2, 50],
-        msg: "name length must be between 2 and 50",
+        msg: "first name length must be between 2 and 50",
       },
     },
   },
@@ -28,7 +28,7 @@ const Employee = sequelize.define("Employees", {
     validate: {
       len: {
         args: [2, 50],
-        msg: "name length must be between 2 and 50",
+        msg: "last name length must be between 2 and 50",
       },
     },
   },
@@ -37,7 +37,9 @@ const Employee = sequelize.define("Employees", {
     allowNull: true,
     validate: {
       len: [2, 50],
-      isAlphanumeric: true,
+      isAlpha: {
+        msg: 'Parent name must contain only letters'
+      }
     },
   },
   date_of_birth: {
