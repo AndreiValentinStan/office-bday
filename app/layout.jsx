@@ -7,6 +7,7 @@ export default function RootLayout({children}) {
       <body>
         <div className="w-full h-dvh flex">
           {children}
+          
         </div>
       </body>
     </html>

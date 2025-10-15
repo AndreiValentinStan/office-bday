@@ -6,6 +6,7 @@ import EmployeesTable from "../../../components/ui/employees/EmployeesTable";
 import PageCounter from "../../../components/ui/employees/PageCounter";
 import OutsideWrapper from "../../../components/hooks/OutsideClick";
 import AddEmployeesModal from "../../../components/ui/employees/AddEmployeeModal";
+import PaginationController from "../../../components/ui/pagination/PaginationController";
 
 export default function Employees() {
   const sectionsStyle = "w-full bg-gray-100 p-4 rounded-sm";
@@ -175,16 +176,13 @@ export default function Employees() {
         </section>
 
         {/* pagination */}
-        <section className="w-min relative left-1/2 -translate-x-1/2 gap-x-2 flex">
-          <span>{"<"}</span>
-          <span>1</span>
-          <span>2</span>
-          <span>3</span>
-          <span>{">"}</span>
-        </section>
+        <PaginationController currentPage={1} totalCount={10} />
       </div>
       {/* add employees modal */}
-      <AddEmployeesModal setIsModalDisplayed={setShowAddEmployeesModal} isModalDisplayed={showAddEmployeesModal}/>
+      <AddEmployeesModal
+        setIsModalDisplayed={setShowAddEmployeesModal}
+        isModalDisplayed={showAddEmployeesModal}
+      />
     </>
   );
 }

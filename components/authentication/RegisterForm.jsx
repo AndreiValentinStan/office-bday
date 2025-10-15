@@ -7,6 +7,7 @@ import { useState } from "react";
 import Axios from "../../utils/axios";
 import { useRouter } from "next/navigation";
 import ErrorToast from "../ui/ErrorToast";
+import { Spinner } from "flowbite-react";
 
 const formInputElements = [
   {
@@ -67,6 +68,7 @@ export default function RegisterForm() {
       return;
     }
     try {
+      setIsLoading(true);
       const axiosInstance = Axios.getAxiosInstance();
       const response = await axiosInstance.post("auth/register", body, {
         headers: {
@@ -78,6 +80,13 @@ export default function RegisterForm() {
       }
     } catch (error) {
       console.log(error);
+      if (error.response) {
+        setError(error?.response?.data?.error || "Unexpected error");
+        return;
+      }
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -96,8 +105,13 @@ export default function RegisterForm() {
             if (error) setError("");
           }}
           onSubmit={registerHandler}
-          className="flex max-w-[600px] flex-wrap justify-center items-center p-10 border border-black/20 rounded-md gap-x-5 gap-y-5"
+          className="flex max-w-[600px] flex-wrap justify-center items-center p-10 border border-black/20 rounded-md gap-x-5 gap-y-5 relative"
         >
+          {isLoading && (
+            <div className="absolute w-full h-full bg-white/50 z-10 flex justify-center items-center">
+              <Spinner size="lg" className="fill-blue-600"></Spinner>
+            </div>
+          )}
           {formInputElements.map((element, index) => (
             <InputElement
               label={element?.label || ""}

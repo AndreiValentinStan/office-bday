@@ -15,6 +15,12 @@ export async function POST(req) {
         StatusCodes.BAD_REQUEST
       );
 
+    await new Promise((res, rej) => {
+      setTimeout(() => {
+        return res();
+      }, 3000);
+    });
+
     // check if passwords match
     if (password !== rePassword)
       throw new CustomError("Passwords provided doesn`t match");
