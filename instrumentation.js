@@ -4,6 +4,7 @@ import { sequelize } from "./db/connectionDB";
 import RefreshTokens from "./models/refreshTokens";
 import Sessions from "./models/session";
 import User from "./models/user";
+import { Employee } from "./models";
 
 export async function register() {
   // init db
@@ -12,6 +13,7 @@ export async function register() {
     await User.sync();
     await Sessions.sync();
     await RefreshTokens.sync();
+    await Employee.sync();
     console.log("Database connected succesfully: ");
     await sequelize.sync({ alter: true });
     console.log("Database syncronized successfully: ");
