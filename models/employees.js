@@ -1,6 +1,9 @@
+import moment from "moment";
 import { sequelize } from "../db/connectionDB";
 
 import { STRING, UUIDV4, UUID, DATE } from "sequelize";
+import { CustomError } from "../utils/CustomError";
+import { StatusCodes } from "http-status-codes";
 
 const Employee = sequelize.define("Employees", {
   id: {
@@ -13,31 +16,58 @@ const Employee = sequelize.define("Employees", {
     type: STRING,
     allowNull: false,
     validate: {
-      len: [2, 50],
+      len: {
+        args: [2, 50],
+        msg: "name length must be between 2 and 50",
+      },
     },
   },
   last_name: {
     type: STRING,
     allowNull: false,
     validate: {
-      len: [2, 50],
+      len: {
+        args: [2, 50],
+        msg: "name length must be between 2 and 50",
+      },
     },
   },
   parent_first_name: {
     type: STRING,
     allowNull: true,
     validate: {
-        len: [2, 50],
-        isAlphanumeric: true
-    }
+      len: [2, 50],
+      isAlphanumeric: true,
+    },
   },
   date_of_birth: {
     type: DATE,
     allowNull: false,
     validate: {
-        isDate: true
-    }
-  }
+      dateValidator(date) {
+        // check if date has correct format
+        if (!moment(date, "DD-MM-YYYY", true))
+          throw new CustomError(
+            "Can`t save into db due to wrong format: Date must have DD-MM-YYYY format",
+            StatusCodes.BAD_REQUEST,
+            ""
+          );
+
+        // check if date is not "older" than 100 year or from the future
+        if (
+          !moment()
+            .subtract(100, "years")
+            .isBefore(moment(date, "DD-MM-YYYY")) ||
+          moment(date, "DD-MM-YYYY").isAfter(moment())
+        )
+          throw new CustomError(
+            "Can`t save into db due to wrong value: Date ca`t be older than 100 years or from the future",
+            StatusCodes.BAD_REQUEST,
+            ""
+          );
+      },
+    },
+  },
 });
 
 export default Employee;
