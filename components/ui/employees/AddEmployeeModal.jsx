@@ -6,6 +6,43 @@ export default function AddEmployeeModal({
   setIsModalDisplayed,
 }) {
   const [selectedFileName, setSelectedFileName] = useState("");
+
+  const [employee, setEmployee] = useState({
+    first_name: "",
+    last_name: "",
+    parent_name: "",
+    date_of_birth: "",
+  });
+
+  function handleEmployeesData({ target }) {
+    setEmployee((prev) => ({
+      ...prev,
+      [target.id]: target.value,
+    }));
+  }
+
+  const handleCreateEmployee = async () => {
+    console.log("send create employee request");
+    try {
+      const body = JSON.stringify({
+        firstName: employee.first_name,
+        lastName: employee.last_name,
+        birthDate: employee.date_of_birth,
+        ...(parent_name && { parentName: employee.parent_name }),
+      });
+      const resp = await fetch(`/api/employee/add-employee`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+      console.log(resp);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <section
       className={`w-full h-full right-0 top-0 fixed select-none ${
@@ -38,23 +75,46 @@ export default function AddEmployeeModal({
               {/* first name */}
               <div className="flex w-full items-center">
                 <label className="w-[40%]">First Name</label>
-                <input className="w-full p-1 border border-blue-300 rounded-sm focus-visible:outline-blue-500 focus-visible:border-blue-200"></input>
+                <input
+                  id="first_name"
+                  className="w-full p-1 border border-blue-300 rounded-sm focus-visible:outline-blue-500 focus-visible:border-blue-200"
+                  onChange={(e) => handleEmployeesData(e)}
+                  value={employee.first_name}
+                ></input>
               </div>
               <div className="flex w-full items-center">
                 <label className="w-[40%]">Last Name</label>
-                <input className="w-full p-1 border border-blue-300 rounded-sm   focus-visible:outline-blue-500 focus-visible:border-blue-200"></input>
+                <input
+                  id="last_name"
+                  className="w-full p-1 border border-blue-300 rounded-sm   focus-visible:outline-blue-500 focus-visible:border-blue-200"
+                  onChange={(e) => handleEmployeesData(e)}
+                  value={employee.last_name}
+                ></input>
               </div>
               <div className="flex w-full items-center">
                 <label className="w-[40%]">Parent Name</label>
-                <input className="w-full p-1 border border-blue-300 rounded-sm   focus-visible:outline-blue-500 focus-visible:border-blue-200"></input>
+                <input
+                  id="parent_name"
+                  className="w-full p-1 border border-blue-300 rounded-sm   focus-visible:outline-blue-500 focus-visible:border-blue-200"
+                  onChange={(e) => handleEmployeesData(e)}
+                  value={employee.parent_name}
+                ></input>
               </div>
               <div className="flex w-full items-center">
                 <label className="w-[40%]">Birth Date</label>
-                <input className="w-full p-1 border border-blue-300 rounded-sm   focus-visible:outline-blue-500 focus-visible:border-blue-200"></input>
+                <input
+                  id="date_of_birth"
+                  className="w-full p-1 border border-blue-300 rounded-sm   focus-visible:outline-blue-500 focus-visible:border-blue-200"
+                  onChange={(e) => handleEmployeesData(e)}
+                  value={employee.date_of_birth}
+                ></input>
               </div>
             </div>
             <div>
-              <button className="bg-blue-500 text-white p-2 rounded-sm hover:bg-blue-600">
+              <button
+                className="bg-blue-500 text-white p-2 rounded-sm hover:bg-blue-600"
+                onClick={handleCreateEmployee}
+              >
                 Add employee
               </button>
             </div>

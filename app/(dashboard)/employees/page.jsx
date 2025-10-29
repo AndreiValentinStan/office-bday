@@ -7,6 +7,7 @@ import PageCounter from "../../../components/ui/employees/PageCounter";
 import OutsideWrapper from "../../../components/hooks/OutsideClick";
 import AddEmployeesModal from "../../../components/ui/employees/AddEmployeeModal";
 import PaginationController from "../../../components/ui/pagination/PaginationController";
+import VisibleColumns from "@/components/ui/employees/VisibleColumns";
 
 export default function Employees() {
   const sectionsStyle = "w-full bg-gray-100 p-4 rounded-sm";
@@ -38,17 +39,17 @@ export default function Employees() {
       {
         label: "First Name",
         inputType: "text",
-        searchParam: "firstName",
+        searchParam: "first_name",
       },
       {
         label: "Last Name",
         inputType: "text",
-        searchParam: "lastName",
+        searchParam: "last_name",
       },
       {
         label: "Birth Date",
         inputType: "text",
-        searchParam: "birthDate",
+        searchParam: "date_of_birth",
       },
     ],
   };
@@ -74,11 +75,14 @@ export default function Employees() {
       console.log(response);
       if (!response.ok) throw Error("Error in fetching employees!");
       const data = await response.json();
-      setEmployees((e) => ({
-        ...e,
-        count: data.count,
-        employees: data.employees,
-      }));
+      const { success, data: recvData, error } = data || {};
+      console.log(recvData);
+
+      if (!success) throw Error("Error in fetching employees");
+      setEmployees({
+        count: recvData.employees.count,
+        employees: recvData.employees.employees,
+      });
     } catch (err) {
       console.log(err);
     }
@@ -88,18 +92,40 @@ export default function Employees() {
   // page size
   const [pageSize, setPageSize] = useState(20);
 
+  // page number
+  const [pageNumber, setPageNumber] = useState(1);
+
   // modify page size handler
   function pageSizeHandler(e) {
     setPageSize(e.target.value);
   }
 
-  // page number
-  const [pageNumber, setPageNumber] = useState(1);
-
   // trigger fetch employees
   useEffect(() => {
     fetchEmployees();
-  }, [pageSize, triggerFilter]);
+  }, [pageSize, triggerFilter, pageNumber]);
+
+  // visible columns
+  const displayColumns = [
+    { name: "First Name", alias: "first_name", display: true },
+    { name: "Last Name", alias: "last_name", display: true },
+    { name: "Parent Name", alias: "parent_first_name", display: true },
+    { name: "Birth Date", alias: "date_of_birth", display: true },
+  ];
+
+  const [visibleColumns, setVisibleColumns] = useState(displayColumns);
+
+  function visibilityHandler({ target }) {
+    setVisibleColumns((prev) =>
+      prev.map((column) => {
+        return target.id === column.alias
+          ? { ...column, display: !column.display }
+          : column;
+      })
+    );
+  }
+
+  console.log({employees});
 
   return (
     <>
@@ -120,31 +146,10 @@ export default function Employees() {
         </header>
 
         {/* visible columns */}
-        <section className={sectionsStyle}>
-          <span className={titleStyle}>visible columns</span>
-          <div className="flex">
-            <div className="flex gap-x-2 m-4">
-              <input type="checkbox"></input>
-              <label>First Name</label>
-            </div>
-            <div className="flex gap-x-2 m-4">
-              <input type="checkbox"></input>
-              <label>Last Name</label>
-            </div>
-            <div className="flex gap-x-2 m-4">
-              <input type="checkbox"></input>
-              <label>Parent First Name</label>
-            </div>
-            <div className="flex gap-x-2 m-4">
-              <input type="checkbox"></input>
-              <label>Birth Date</label>
-            </div>
-            <div className="flex gap-x-2 m-4">
-              <input type="checkbox"></input>
-              <label>Age</label>
-            </div>
-          </div>
-        </section>
+        <VisibleColumns
+          columnsArray={visibleColumns}
+          visibilityHandler={(e) => visibilityHandler(e)}
+        />
 
         {/* filters */}
         <section className={`${sectionsStyle} flex flex-col gap-y-5`}>
@@ -169,6 +174,9 @@ export default function Employees() {
               loadingStatus={isLoading}
               clickOutside={clickOutside}
               setClickOutside={setClickOutside}
+              visibleColumns={visibleColumns}
+              currentPage={pageNumber - 1}
+              resultsPerPage={pageSize}
             >
               <PageCounter setPageSize={pageSizeHandler} pageSize={pageSize} />
             </EmployeesTable>
@@ -176,7 +184,11 @@ export default function Employees() {
         </section>
 
         {/* pagination */}
-        <PaginationController currentPage={1} totalCount={10} />
+        <PaginationController
+          currentPage={pageNumber}
+          totalCount={Math.ceil(employees?.count / pageSize) || 0}
+          changePageHandler={(num) => setPageNumber(num)}
+        />
       </div>
       {/* add employees modal */}
       <AddEmployeesModal
