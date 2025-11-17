@@ -10,12 +10,8 @@ export async function register() {
   // init db
   try {
     await sequelize.authenticate();
-    await User.sync();
-    await Sessions.sync();
-    await RefreshTokens.sync();
-    await Employee.sync();
     console.log("Database connected succesfully: ");
-    await sequelize.sync({ alter: true });
+    await sequelize.sync(/* { force: true } */);
     console.log("Database syncronized successfully: ");
   } catch (err) {
     console.log("Database Error: ", err.message);

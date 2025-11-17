@@ -1,11 +1,15 @@
+import { CloseIcon, Spinner } from "flowbite-react";
 import { useState } from "react";
 import { IoIosClose } from "react-icons/io";
 
 export default function AddEmployeeModal({
   isModalDisplayed,
   setIsModalDisplayed,
+  setChangesTracker,
 }) {
-  const [selectedFileName, setSelectedFileName] = useState("");
+  const [employeesFile, setEmployeesFile] = useState(null);
+  const [fileInput, setFileInput] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [employee, setEmployee] = useState({
     first_name: "",
@@ -43,6 +47,32 @@ export default function AddEmployeeModal({
     }
   };
 
+  async function uploadEmployeesHandler() {
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("employeesFile", employeesFile);
+      const response = await fetch("/api/employee/add-bulk", {
+        method: "POST",
+        body: formData,
+      });
+      const { success, error } = await response.json();
+      console.log(success, error);
+      if (!success) throw Error(`${error.message} ---> ${error?.data}`);
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsLoading(false);
+      setEmployeesFile("");
+      setIsModalDisplayed(false);
+      setChangesTracker((prev) => !prev);
+      /* setTimeout(() => {
+        setIsModalDisplayed(false);
+      }, 1500); */
+    }
+  }
+
   return (
     <section
       className={`w-full h-full right-0 top-0 fixed select-none ${
@@ -67,6 +97,15 @@ export default function AddEmployeeModal({
           >
             <IoIosClose size={"30px"} />
           </div>
+          {/* loading screen */}
+          {isLoading && (
+            <div className="absolute top-0 left-0 w-full h-full z-10 bg-gray-100/80 flex flex-col items-center justify-center gap-y-5">
+              <Spinner size="xl" className="fill-blue-500 text-transparent" />
+              <span className="text-2xl italic text-slate-900/75">
+                Loading, please wait!
+              </span>
+            </div>
+          )}
           {/* add employee */}
           <div className="w-full h-full flex flex-col items-center justify-center gap-y-8 relative py-6 px-2 text-slate-700 border border-gray-200 rounded-sm">
             <div className="absolute w-full h-full bg-gray-50 opacity-10 -z-10"></div>
@@ -130,29 +169,50 @@ export default function AddEmployeeModal({
             <div className="absolute w-full h-full bg-gray-50 opacity-10 -z-10"></div>
             <h1 className="text-xl">Import employee</h1>
             <div className="flex flex-col gap-y-3 items-center">
-              <p>Please select an .xlsx file to upload</p>
+              <p>Please select an .csv file to upload</p>
               <label
                 htmlFor="file_upload"
                 className="bg-gray-200 px-5 py-2 rounded-md hover:bg-gray-300 hover:cursor-pointer"
               >
-                Choose excel file
+                Choose file
               </label>
               <input
                 className="opacity-0 absolute  w-0 h-0"
                 type="file"
                 id="file_upload"
-                accept=".xlsx"
+                accept=".csv"
                 onChange={(i) => {
-                  console.log("file selected");
-                  if (i.target.files[0].name)
-                    setSelectedFileName(i.target.files[0].name.toString());
+                  console.log(i);
+                  if (i.target.files.length === 1) {
+                    setEmployeesFile(i.target.files[0]);
+                    setFileInput(i.target);
+                  }
                 }}
               ></input>
-              <p>
-                {selectedFileName ? `${selectedFileName}` : "No file selected"}
-              </p>
+              <div className="relative border border-slate-200 px-2 py-2 rounded-md">
+                {employeesFile && (
+                  <div
+                    onClick={() => {
+                      setEmployeesFile(null);
+                      fileInput.value = "";
+                      setFileInput(null);
+                    }}
+                    className="absolute -right-2 -top-2 text-center bg-slate-200 rounded-xl w-5 h-5 hover:cursor-pointer"
+                  >
+                    <CloseIcon className="relative top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                  </div>
+                )}
+                <p>
+                  {employeesFile
+                    ? `${employeesFile.name.toString()}`
+                    : "No file selected"}
+                </p>
+              </div>
             </div>
-            <button className="bg-blue-500 px-5 py-2 rounded-sm text-white focus-within:outline-none hover:bg-blue-600">
+            <button
+              onClick={uploadEmployeesHandler}
+              className="bg-blue-500 px-5 py-2 rounded-sm text-white focus-within:outline-none hover:bg-blue-600"
+            >
               Upload
             </button>
           </div>

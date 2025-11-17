@@ -15,6 +15,8 @@ export default function Employees() {
   const [clickOutside, setClickOutside] = useState(false);
   const [showAddEmployeesModal, setShowAddEmployeesModal] = useState(false);
 
+  const [changesTracker, setChangesTracker] = useState(false);
+
   // filter
   // filter state
   const [filterState, setFilterState] = useState({});
@@ -103,7 +105,7 @@ export default function Employees() {
   // trigger fetch employees
   useEffect(() => {
     fetchEmployees();
-  }, [pageSize, triggerFilter, pageNumber]);
+  }, [pageSize, triggerFilter, pageNumber, changesTracker]);
 
   // visible columns
   const displayColumns = [
@@ -124,8 +126,6 @@ export default function Employees() {
       })
     );
   }
-
-  console.log({employees});
 
   return (
     <>
@@ -194,6 +194,7 @@ export default function Employees() {
       <AddEmployeesModal
         setIsModalDisplayed={setShowAddEmployeesModal}
         isModalDisplayed={showAddEmployeesModal}
+        setChangesTracker={setChangesTracker}
       />
     </>
   );
