@@ -2,6 +2,13 @@ import { CloseIcon, Spinner } from "flowbite-react";
 import { useState } from "react";
 import { IoIosClose } from "react-icons/io";
 
+const employeeSchema = {
+  first_name: "",
+  last_name: "",
+  parent_name: "",
+  date_of_birth: "",
+};
+
 export default function AddEmployeeModal({
   isModalDisplayed,
   setIsModalDisplayed,
@@ -11,12 +18,7 @@ export default function AddEmployeeModal({
   const [fileInput, setFileInput] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [employee, setEmployee] = useState({
-    first_name: "",
-    last_name: "",
-    parent_name: "",
-    date_of_birth: "",
-  });
+  const [employee, setEmployee] = useState(employeeSchema);
 
   function handleEmployeesData({ target }) {
     setEmployee((prev) => ({
@@ -26,7 +28,7 @@ export default function AddEmployeeModal({
   }
 
   const handleCreateEmployee = async () => {
-    console.log("send create employee request");
+    setIsLoading(true);
     try {
       const body = JSON.stringify({
         firstName: employee.first_name,
@@ -41,9 +43,15 @@ export default function AddEmployeeModal({
         },
         body,
       });
-      console.log(resp);
+      const { success, error } = await resp.json();
+      if (!success) throw Error(`${error.message} --> ${error?.reason}`);
     } catch (err) {
       console.log(err);
+    } finally {
+      setIsLoading(false);
+      setEmployee(employeeSchema);
+      setIsModalDisplayed(false);
+      setChangesTracker((prev) => !prev);
     }
   };
 
@@ -67,9 +75,6 @@ export default function AddEmployeeModal({
       setEmployeesFile("");
       setIsModalDisplayed(false);
       setChangesTracker((prev) => !prev);
-      /* setTimeout(() => {
-        setIsModalDisplayed(false);
-      }, 1500); */
     }
   }
 

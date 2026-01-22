@@ -6,8 +6,11 @@ import EmployeesTable from "../../../components/ui/employees/EmployeesTable";
 import PageCounter from "../../../components/ui/employees/PageCounter";
 import OutsideWrapper from "../../../components/hooks/OutsideClick";
 import AddEmployeesModal from "../../../components/ui/employees/AddEmployeeModal";
+import EditEmployeeModal from "../../../components/ui/employees/EditEmployeeModal";
+import DeleteEmployeeModal from "../../../components/ui/employees/DeleteEmployeeModal";
 import PaginationController from "../../../components/ui/pagination/PaginationController";
 import VisibleColumns from "@/components/ui/employees/VisibleColumns";
+import UserGuard from "../../../guards/auth";
 
 export default function Employees() {
   const sectionsStyle = "w-full bg-gray-100 p-4 rounded-sm";
@@ -16,6 +19,12 @@ export default function Employees() {
   const [showAddEmployeesModal, setShowAddEmployeesModal] = useState(false);
 
   const [changesTracker, setChangesTracker] = useState(false);
+
+  // employee modal
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editEmployeeId, setEditEmployeeId] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteEmployeeData, setDeleteEmployeeData] = useState({});
 
   // filter
   // filter state
@@ -100,12 +109,16 @@ export default function Employees() {
   // modify page size handler
   function pageSizeHandler(e) {
     setPageSize(e.target.value);
+    setPageNumber(1);
   }
 
   // trigger fetch employees
   useEffect(() => {
+    setFilterState({});
+    //setPageSize(20);
+    setPageNumber(1);
     fetchEmployees();
-  }, [pageSize, triggerFilter, pageNumber, changesTracker]);
+  }, [pageSize, triggerFilter, /* pageNumber, */ changesTracker]);
 
   // visible columns
   const displayColumns = [
@@ -128,8 +141,27 @@ export default function Employees() {
   }
 
   return (
-    <>
-      <div className="w-full h-dvh p-8 flex flex-col gap-y-2 overflow-y-scroll relative select-none">
+    <UserGuard>
+      <div
+        className="w-full h-dvh p-8 flex flex-col gap-y-2 overflow-y-scroll relative select-none"
+        onClick={(e) => {
+          if (e.target.id.includes("edit")) {
+            setEditEmployeeId(e.target.id.split("_")[1]);
+            setShowEditModal(true);
+          }
+          if (e.target.id.includes("delete")) {
+            console.log({ employees });
+            const id = e.target.id.split("_")[1];
+            const employeeToDelete = employees.employees.find(
+              (employee) => employee.id === id
+            );
+            if (employeeToDelete) {
+              setDeleteEmployeeData(employeeToDelete);
+              setShowDeleteModal(true);
+            }
+          }
+        }}
+      >
         {/* header */}
         <header
           className={`${sectionsStyle} flex justify-between items-center`}
@@ -187,7 +219,10 @@ export default function Employees() {
         <PaginationController
           currentPage={pageNumber}
           totalCount={Math.ceil(employees?.count / pageSize) || 0}
-          changePageHandler={(num) => setPageNumber(num)}
+          changePageHandler={(num) => {
+            console.log({ pageNumber: num });
+            setPageNumber(num);
+          }}
         />
       </div>
       {/* add employees modal */}
@@ -196,6 +231,24 @@ export default function Employees() {
         isModalDisplayed={showAddEmployeesModal}
         setChangesTracker={setChangesTracker}
       />
-    </>
+
+      {/* edit employee modal */}
+      {showEditModal && (
+        <EditEmployeeModal
+          isModalDisplayed={showEditModal}
+          setModalVisibility={setShowEditModal}
+          reloadTrigger={setChangesTracker}
+          employeeId={editEmployeeId}
+        />
+      )}
+
+      {/* delete employee modal */}
+      <DeleteEmployeeModal
+        isModalDisplayed={showDeleteModal}
+        setVisibility={setShowDeleteModal}
+        data={deleteEmployeeData}
+        reloadPageTrigger={setChangesTracker}
+      />
+    </UserGuard>
   );
 }

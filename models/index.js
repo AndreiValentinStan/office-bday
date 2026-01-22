@@ -1,5 +1,3 @@
-import User from "./user";
-import Session from "./session";
-import Employee from "./employees";
-
-export { User, Session, Employee };
+export {default as Employee} from './employees';
+export {default as Session} from './employees';
+export {default as User} from './employees';

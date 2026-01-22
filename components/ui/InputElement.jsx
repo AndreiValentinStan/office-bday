@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const defaultStyle = `top-1/2 -translate-y-1/2 left-4 text-gray-400 text-md absolute italic`;
-const floatStyle = `-top-[0.9rem] bg-white left-2 px-1 text-black/70 text-sm absolute italic`;
+const embededDefaultStyle = `top-1/2 -translate-y-1/2 left-4 text-gray-400 text-md absolute italic`;
+const embededFloatStyle = `-top-[0.9rem] bg-white left-2 px-1 text-black/70 text-sm absolute italic`;
 const baseStyle = `select-none pointer-events-none font-customFont transition-all duration-150 ease-in-out`;
 
 export default function InputElement({
@@ -13,12 +13,27 @@ export default function InputElement({
   required,
   style,
   name,
-  floatEffect=false
+  floatEffect = false,
+  customFloatStyle = null,
+  customDefaultStyle = null,
+  value,
+  disabled,
 }) {
-  const [labelStyleSelector, setLabelStyleSelector] = useState("DEFAULT");
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState(value || "");
+  const [labelStyleSelector, setLabelStyleSelector] = useState(
+    content ? "FLOAT" : "DEFAULT"
+  );
+  useEffect(() => {
+    if (value) {
+      setContent(value);
+      setLabelStyleSelector(value ? "FLOAT" : "DEFAULT");
+    }
+  }, [value]);
 
   const { containerStyle, inputStyle } = style || {};
+
+  const floatStyle = customFloatStyle ?? embededFloatStyle;
+  const defaultStyle = customDefaultStyle ?? embededDefaultStyle;
 
   const htmlInputFocusHandler = () => {
     if (labelStyleSelector === "DEFAULT") setLabelStyleSelector("FLOAT");
@@ -31,7 +46,7 @@ export default function InputElement({
 
   const handleTypeing = (e) => {
     setContent(e.target.value);
-  }
+  };
 
   return (
     <>
@@ -43,7 +58,11 @@ export default function InputElement({
       >
         <label
           className={`${baseStyle} ${
-            floatEffect ? labelStyleSelector === "DEFAULT" ? defaultStyle : floatStyle : ''
+            floatEffect
+              ? labelStyleSelector === "DEFAULT"
+                ? defaultStyle
+                : floatStyle
+              : ""
           }`}
         >
           {label}
@@ -52,9 +71,12 @@ export default function InputElement({
           type={inputType}
           name={name}
           required={required}
+          value={content}
           onChange={handleTypeing}
           onFocus={htmlInputFocusHandler}
           onBlur={htmlInputBlurHandler}
+          autoComplete="off"
+          disabled={disabled || false}
           className={
             inputStyle ||
             "rounded-md border border-gray-400 h-8 focus-visible:outline-none focus:ring-1 focus:border-blue-700 focus:ring-blue-700 p-2 dark:bg-slate-800"

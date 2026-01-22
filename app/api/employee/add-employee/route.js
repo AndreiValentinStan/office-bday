@@ -48,6 +48,7 @@ export async function POST(req) {
       error: null,
     });
   } catch (err) {
+    console.log(err);
     return Response.json(
       {
         success: false,

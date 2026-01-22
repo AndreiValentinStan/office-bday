@@ -73,7 +73,6 @@ export default function EmployeesTable({
       ) : (
         <div
           onClick={(e) => {
-            console.log({ displayDropdown, clickVal: e.target.value });
             if (e.target.id === "cell-options-button") {
               if (parseInt(e.target.value, 10) === displayDropdown)
                 return setDisplayDropdown(null);
@@ -97,6 +96,7 @@ export default function EmployeesTable({
             </TableHead>
             <TableBody key={"table"}>
               {employees?.employees?.map((employee, index) => {
+                
                 return (
                   <TableRow key={employee.id}>
                     <TableCell className="max-w-2">
@@ -119,7 +119,11 @@ export default function EmployeesTable({
                       );
                     })}
                     <TableCell>
-                      <CellOptionsButton id={index} display={displayDropdown} />
+                      <CellOptionsButton
+                        id={index}
+                        display={displayDropdown}
+                        employeeId={employee.id}
+                      />
                     </TableCell>
                   </TableRow>
                 );

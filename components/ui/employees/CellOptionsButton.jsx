@@ -1,6 +1,6 @@
 import { HiOutlineDotsVertical } from "react-icons/hi";
 
-export default function CellOptionsButton({ id, display }) {
+export default function CellOptionsButton({ id, display, employeeId }) {
   const optionStyle = "hover:bg-blue-800 px-4 py-2 hover:cursor-pointer";
 
   return (
@@ -17,8 +17,12 @@ export default function CellOptionsButton({ id, display }) {
             <div
               className={`bg-blue-700 absolute z-10 text-white gap-y-2 flex flex-col`}
             >
-              <span className={optionStyle}>Edit</span>
-              <span className={optionStyle}>Delete</span>
+              <span className={optionStyle} id={`edit_${employeeId}`}>
+                Edit
+              </span>
+              <span className={optionStyle} id={`delete_${employeeId}`}>
+                Delete
+              </span>
             </div>
           </div>
         </>
@@ -26,6 +30,3 @@ export default function CellOptionsButton({ id, display }) {
     </div>
   );
 }
-/* ${
-                display === id ? "block" : "hidden"
-              } */

@@ -2,28 +2,30 @@
 import { StatusCodes } from "http-status-codes";
 import { CustomError } from "../../../../utils/CustomError";
 import User from "../../../../models/user";
+import { registerDataSchema } from "../../../../validators/register";
+import errorHandler from "../../../../utils/errorHandler";
 
 export async function POST(req) {
   try {
-    const { firstName, lastName, email, password, rePassword, phone } =
-      (await req.json()) || {};
+    const { firstName, lastName, email, password, retypedPassword, phone } =
+      await req.json();
 
-    // assure body integrity
-    if (!firstName || !lastName || !email || !password || !rePassword)
-      throw new CustomError(
-        "Please provide all required values",
-        StatusCodes.BAD_REQUEST
-      );
+    // validate recieved data
+    registerDataSchema.parse({
+      firstName,
+      lastName,
+      email,
+      phone,
+      password,
+      retypedPassword,
+    });
 
+    // intentional sleeper
     await new Promise((res, rej) => {
       setTimeout(() => {
         return res();
       }, 3000);
     });
-
-    // check if passwords match
-    if (password !== rePassword)
-      throw new CustomError("Passwords provided doesn`t match");
 
     // create entry in DB
     const user = await User.create({
@@ -46,17 +48,7 @@ export async function POST(req) {
         status: StatusCodes.CREATED,
       }
     );
-  } catch (error) {
-    console.log(error);
-    return Response.json(
-      {
-        success: false,
-        data: null,
-        error: error?.messgage || "Error on creating new user",
-      },
-      {
-        status: error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-      }
-    );
+  } catch (error){
+    return errorHandler(error)
   }
 }

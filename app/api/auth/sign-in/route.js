@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 // /api/auth/sign-in
 // required(body): email, password
 
@@ -11,21 +13,15 @@ import RefreshTokens from "../../../../models/refreshTokens";
 import moment from "moment";
 import jwt from "jsonwebtoken";
 import { BaseError, EmptyResultError } from "sequelize";
+import { loginDataSchema } from "../../../../validators/login";
 
 export async function POST(request) {
   try {
     // parse request body
     const body = await request.json();
 
-    // check required fields
-    const { email, password } = body || {};
-
-    if (!email || !password)
-      throw new CustomError(
-        "Please provide all required values",
-        StatusCodes.BAD_REQUEST,
-        "Missing email or password"
-      );
+    // data validation
+    let { email, password } = loginDataSchema.parse(body);
 
     // look for user in db
     const user = await User.findAll({
@@ -75,6 +71,7 @@ export async function POST(request) {
 
     // create refresh token
     const refreshToken = randomBytes(256).toString("hex");
+
     // generate refresh token hash
     const hash = createHash("sha512");
     hash.update(refreshToken);

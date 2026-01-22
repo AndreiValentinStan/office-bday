@@ -5,7 +5,8 @@ import { STRING, UUIDV4, UUID, DATE } from "sequelize";
 import { CustomError } from "../utils/CustomError";
 import { StatusCodes } from "http-status-codes";
 
-const Employee = sequelize.define("Employees",
+const Employee = sequelize.define(
+  "Employees",
   {
     id: {
       type: UUID,
@@ -57,11 +58,13 @@ const Employee = sequelize.define("Employees",
             );
 
           // check if date is not "older" than 100 year or from the future
+          const maxAge = process.env.NEXT_PUBLIC_MAXIMUM_AGE;
+          const minAge = process.env.NEXT_PUBLIC_MINIMUM_AGE;
+          const minimumOffset = moment().subtract(maxAge, "years");
+          const maximumOffset = moment().subtract(minAge, "years");
           if (
-            !moment()
-              .subtract(100, "years")
-              .isBefore(moment(date, "DD-MM-YYYY")) ||
-            moment(date, "DD-MM-YYYY").isAfter(moment())
+            moment(date).isBefore(minimumOffset) ||
+            moment(date).isAfter(maximumOffset)
           )
             throw new CustomError(
               "Can`t save into db due to wrong value: Date ca`t be older than 100 years or from the future",
@@ -76,11 +79,7 @@ const Employee = sequelize.define("Employees",
     tableName: "employees",
     uniqueKeys: {
       employee_unique_key: {
-        fields: [
-          "first_name",
-          "last_name",
-          "date_of_birth",
-        ],
+        fields: ["first_name", "last_name", "date_of_birth"],
       },
     },
   }

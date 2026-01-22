@@ -41,7 +41,7 @@ const User = sequelize.define("Users", {
   },
   status: {
     type: ENUM,
-    values: ['ACTIVE', 'PENDING', 'INACTIVE'],
+    values: ['ACTIVE', 'PENDING', 'REVOKED'],
     defaultValue: 'PENDING'
   },
   password: {
