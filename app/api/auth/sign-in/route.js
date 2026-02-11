@@ -39,7 +39,7 @@ export async function POST(request) {
     if (user && user?.length !== 1)
       throw new CustomError(
         "We`ve got some serious issues!",
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
 
     // destructure values from model instance
@@ -50,7 +50,7 @@ export async function POST(request) {
     if (!dbPasswdHash || !userId)
       throw new CustomError(
         "Can`t find required values. Quitting",
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
 
     // compare password
@@ -66,7 +66,7 @@ export async function POST(request) {
         changing_status_time: new Date(Date.now()),
         changing_status_reason: "successfull login",
       },
-      { fields: ["user_id", "changing_status_time", "changing_status_reason"] }
+      { fields: ["user_id", "changing_status_time", "changing_status_reason"] },
     );
 
     // create refresh token
@@ -90,12 +90,14 @@ export async function POST(request) {
 
     // STORE HMAC IN A COOKIE
     const afterTwoHours =
-      moment().add(7, "d").format("ddd, DD MMM YYYY HH:mm:ss").toString() +
-      " GMT";
+      moment()
+        .add(100, "seconds")
+        .format("ddd, DD MMM YYYY HH:mm:ss")
+        .toString() + " GMT";
     const cookieHeader = new Headers();
     cookieHeader.set(
       "Set-Cookie",
-      `refreshToken=${hmacRefreshToken};path=/;httpOnly;SameSite=Strict;expires=${afterTwoHours}`
+      `refreshToken=${hmacRefreshToken};path=/api/auth/;httpOnly;SameSite=Strict;expires=${afterTwoHours}`,
     );
 
     // create jwt acces token
@@ -106,25 +108,26 @@ export async function POST(request) {
         },
         process.env.JWT_SECRET,
         {
-          expiresIn: "5m",
+          expiresIn: "100s",
           subject: userId,
         },
         (err, token) => {
           if (err) return reject(err);
           return resolve(token);
-        }
+        },
       );
     });
 
     return Response.json(
       {
-        accessToken,
         success: true,
+        error: null,
+        data: { accessToken, email },
       },
       {
         status: StatusCodes.OK,
         headers: cookieHeader,
-      }
+      },
     );
   } catch (error) {
     console.log("some error ocured: ", error);
@@ -139,7 +142,7 @@ export async function POST(request) {
       },
       {
         status: error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-      }
+      },
     );
   }
 }

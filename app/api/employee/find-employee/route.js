@@ -1,6 +1,7 @@
 import { z } from "zod";
 import errorHandler from "../../../../utils/errorHandler";
 import Employee from "../../../../models/employees";
+import { authenticateRequest } from "../../../../decorators/authenticateRequest";
 
 const paramSchema = z.object({
   employeeId: z.uuid({
@@ -9,7 +10,9 @@ const paramSchema = z.object({
   }),
 });
 
-export async function GET(req) {
+export const GET = authenticateRequest(routeHandler)
+
+async function routeHandler(req) {
   try {
     const params = req.nextUrl.searchParams;
     const searchParams = Object.fromEntries(params.entries());

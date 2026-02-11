@@ -1,12 +1,15 @@
 import z from "zod";
 import errorHandler from "../../../../utils/errorHandler";
 import { Employee } from "../../../../models";
+import { authenticateRequest } from "../../../../decorators/authenticateRequest";
 
 const bodySchema = z.object({
-  id: z.string().uuid({ version: "v4" }),
+  id: z.uuidv4(),
 });
 
-export async function DELETE(req) {
+export const DELETE = authenticateRequest(routeHandler);
+
+async function routeHandler(req) {
   try {
     const employeeData = (await req.json()) || {};
     const { id } = bodySchema.parse(employeeData);

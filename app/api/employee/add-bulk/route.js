@@ -2,8 +2,8 @@ import { StatusCodes } from "http-status-codes";
 import { CustomError } from "../../../../utils/CustomError";
 import z, { ZodError } from "zod";
 import Employee from "../../../../models/employees";
-import { AggregateError } from "sequelize";
 import moment from "moment";
+import { authenticateRequest } from "../../../../decorators/authenticateRequest";
 
 // define validation schema
 const employeeSchema = z.object({
@@ -42,7 +42,9 @@ const employeeSchema = z.object({
     .transform((birthDate) => moment.utc(birthDate, "DD-MM-YYYY").toDate()),
 });
 
-export async function POST(req) {
+export const POST = authenticateRequest(routeHandler)
+
+async function routeHandler(req) {
   try {
     // check if request type if multipart/form-data
     if (

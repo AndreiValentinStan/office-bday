@@ -1,20 +1,15 @@
-import { StatusCodes } from "http-status-codes";
-import { CustomError } from "../../../../utils/CustomError";
-import { updateEmployeeDataSchema as EmployeeSchema } from "../../../../utils/validationData";
+import { updateEmployeeDataSchema as EmployeeSchema } from "../../../../validators/employee";
 import errorHandler from "../../../../utils/errorHandler";
 import { Employee } from "../../../../models";
-import { where } from "sequelize";
+import { authenticateRequest } from "../../../../decorators/authenticateRequest";
 
-export async function PUT(req) {
+export const PUT = authenticateRequest(routeHandler);
+
+async function routeHandler(req) {
   try {
     // extract data from body
-    const {
-      first_name,
-      last_name,
-      parent_first_name,
-      date_of_birth,
-      id,
-    } = await req.json();
+    const { first_name, last_name, parent_first_name, date_of_birth, id } =
+      await req.json();
 
     // data validation
     const employeeData = EmployeeSchema.parse({
@@ -25,22 +20,17 @@ export async function PUT(req) {
       date_of_birth,
     });
 
-    console.log(employeeData);
-
     // update employee data
-    const dbResponse = await Employee.update(
-      employeeData,
-      {
-        where: {
-          id,
-        },
-      }
-    );
+    const dbResponse = await Employee.update(employeeData, {
+      where: {
+        id,
+      },
+    });
 
     return Response.json({
       success: true,
       data: dbResponse,
-      message: 'User updated'
+      message: "User updated",
     });
   } catch (err) {
     return errorHandler(err);

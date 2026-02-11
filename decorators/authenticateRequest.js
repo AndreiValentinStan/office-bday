@@ -6,8 +6,9 @@ import { CustomError } from "../utils/CustomError";
 import { StatusCodes } from "http-status-codes";
 import { verify } from "jsonwebtoken";
 import errorHandler from "../utils/errorHandler";
+import { NextRequest } from "next/server";
 
-export const accessTokenVerify = (next) => {
+export const authenticateRequest = (next) => {
   return async (req) => {
     try {
       // extract authorization header
@@ -37,8 +38,9 @@ export const accessTokenVerify = (next) => {
       });
 
       // attach encapsulatedData to originalr equest object
-      Request.prototype.encpasulatedData = decodedData;
-      const newRequest = new Request(req);
+      NextRequest.prototype.encpasulatedData = decodedData;
+      //Request.prototype.encpasulatedData = decodedData;
+      const newRequest = new NextRequest(req); 
       return next(newRequest);
     } catch (e) {
       return errorHandler(e);

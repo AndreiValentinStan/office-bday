@@ -6,38 +6,49 @@ import SignInButton from "../ui/SingInButton";
 import ErrorToast from "../ui/ErrorToast";
 import { useState } from "react";
 import Axios from "../../utils/axios";
+import { useAuth } from "../../hooks/auth";
+import apiManager from "../../utils/ApiInterface";
 
 export default function LoginForm() {
   const [signInError, setSignInError] = useState("");
-  const axiosInstance = Axios.getAxiosInstance();
+  const { post } = apiManager;
+  const { login } = useAuth();
 
   const submitHandler = async (e) => {
     e.preventDefault();
     let [email, password] = e.target.form || [];
     email = email.value;
     password = password.value;
-    if (!email || !password) {
+    /* if (!email || !password) {
       setSignInError("Please provide email and password");
       return;
-    }
+    } */
     try {
-      const response = await axiosInstance.post(
-        "auth/sign-in",
+      const response = await post(
+        "/auth/sign-in",
+        { email: "test@email.com", password: "AnaAre23Mere!" },
         {
-          email,
-          password,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      /* const response = await axiosInstance.post(
+        "/auth/sign-in",
+        {
+          email: "test@email.com",
+          password: "AnaAre23Mere!",
         },
         {
           headers: { "Content-Type": "application/json" },
-        }
-      );
-      if (response.status === 200) {
-        //set-up access token
-        Axios.setAccessToken(response.data.accessToken);
-      }
+        },
+      ); */
+
+      login(response.accessToken, response.email, "admin");
       e.target.form.reset();
     } catch (err) {
-      setSignInError(err?.response?.data?.message || 'Unexpected error from the server');
+      console.log(err);
+      setSignInError(
+        err?.response?.data?.message || "Unexpected error from the server",
+      );
     }
   };
 

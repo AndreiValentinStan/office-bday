@@ -10,7 +10,7 @@ import EditEmployeeModal from "../../../components/ui/employees/EditEmployeeModa
 import DeleteEmployeeModal from "../../../components/ui/employees/DeleteEmployeeModal";
 import PaginationController from "../../../components/ui/pagination/PaginationController";
 import VisibleColumns from "@/components/ui/employees/VisibleColumns";
-import UserGuard from "../../../guards/auth";
+import api from "../../../utils/ApiInterface";
 
 export default function Employees() {
   const sectionsStyle = "w-full bg-gray-100 p-4 rounded-sm";
@@ -78,21 +78,16 @@ export default function Employees() {
         if (searchQuery.length > 0) searchQuery += "&";
         searchQuery += key.toString() + "=" + value.toString();
       }
-      const response = await fetch(
-        `/api/employee/get-employees?count=${pageSize}&page=${pageNumber}${
+      const {
+        employees: { count, employees },
+      } = await api.get(
+        `/employee/get-employees?count=${pageSize}&page=${pageNumber}${
           searchQuery.length > 0 ? `&${searchQuery}` : ``
-        }`
+        }`,
       );
-      console.log(response);
-      if (!response.ok) throw Error("Error in fetching employees!");
-      const data = await response.json();
-      const { success, data: recvData, error } = data || {};
-      console.log(recvData);
-
-      if (!success) throw Error("Error in fetching employees");
       setEmployees({
-        count: recvData.employees.count,
-        employees: recvData.employees.employees,
+        count,
+        employees,
       });
     } catch (err) {
       console.log(err);
@@ -116,9 +111,9 @@ export default function Employees() {
   useEffect(() => {
     setFilterState({});
     //setPageSize(20);
-    setPageNumber(1);
+    //setPageNumber(1);
     fetchEmployees();
-  }, [pageSize, triggerFilter, /* pageNumber, */ changesTracker]);
+  }, [pageSize, triggerFilter, changesTracker]);
 
   // visible columns
   const displayColumns = [
@@ -136,12 +131,12 @@ export default function Employees() {
         return target.id === column.alias
           ? { ...column, display: !column.display }
           : column;
-      })
+      }),
     );
   }
 
   return (
-    <UserGuard>
+    <>
       <div
         className="w-full h-dvh p-8 flex flex-col gap-y-2 overflow-y-scroll relative select-none"
         onClick={(e) => {
@@ -153,7 +148,7 @@ export default function Employees() {
             console.log({ employees });
             const id = e.target.id.split("_")[1];
             const employeeToDelete = employees.employees.find(
-              (employee) => employee.id === id
+              (employee) => employee.id === id,
             );
             if (employeeToDelete) {
               setDeleteEmployeeData(employeeToDelete);
@@ -249,6 +244,6 @@ export default function Employees() {
         data={deleteEmployeeData}
         reloadPageTrigger={setChangesTracker}
       />
-    </UserGuard>
+    </>
   );
 }
