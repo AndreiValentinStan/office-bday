@@ -12,9 +12,9 @@ export default async function RegisterConfirmation({ params }) {
     },
   });
 
-  if (true) {
+  /* if (true) {
     redirect('/not-found')
-  }
+  } */
 
   const { first_name, last_name } = user;
 

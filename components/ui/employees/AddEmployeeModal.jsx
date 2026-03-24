@@ -1,5 +1,6 @@
+import ApiInterface from "@/utils/ApiInterface";
 import { CloseIcon, Spinner } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoIosClose } from "react-icons/io";
 
 const employeeSchema = {
@@ -60,11 +61,11 @@ export default function AddEmployeeModal({
     try {
       const formData = new FormData();
       formData.append("employeesFile", employeesFile);
-      const response = await fetch("/api/employee/add-bulk", {
+      /* const response = await fetch("/api/employee/add-bulk", {
         method: "POST",
         body: formData,
-      });
-      const { success, error } = await response.json();
+      }); */
+      const { success, error } = await ApiInterface.post('/employee/add-bulk', formData);
       console.log(success, error);
       if (!success) throw Error(`${error.message} ---> ${error?.data}`);
       console.log(response);
@@ -72,10 +73,20 @@ export default function AddEmployeeModal({
       console.log(err);
     } finally {
       setIsLoading(false);
-      setEmployeesFile("");
-      setIsModalDisplayed(false);
+      /* setEmployeesFile(null);
+      setFileInput
+      setIsModalDisplayed(false); */
+      closeModalHandler()
       setChangesTracker((prev) => !prev);
     }
+  }
+
+  function closeModalHandler(){
+    // clean-up rezidual data
+    setFileInput(null);
+    setEmployeesFile(null);
+    setEmployee(employeeSchema);
+    setIsModalDisplayed(false);
   }
 
   return (
@@ -97,7 +108,7 @@ export default function AddEmployeeModal({
         <div className="w-10/12 min-w-[1300px] min-h-[650px] absolute bg-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-[1px] border-blue-500 rounded-md flex gap-x-10 items-center justify-around p-4">
           {/* close button */}
           <div
-            onClick={() => setIsModalDisplayed(false)}
+            onClick={closeModalHandler}
             className="absolute right-1 top-1 text-gray-400 hover:text-gray-600 hover:cursor-pointer hover:bg-gray-100 p-0 rounded-md transition border "
           >
             <IoIosClose size={"30px"} />
@@ -185,6 +196,7 @@ export default function AddEmployeeModal({
                 className="opacity-0 absolute  w-0 h-0"
                 type="file"
                 id="file_upload"
+                key={employeesFile ? 'completed' : 'incompleted'}
                 accept=".csv"
                 onChange={(i) => {
                   console.log(i);

@@ -18,6 +18,7 @@ export default function InputElement({
   customDefaultStyle = null,
   value,
   disabled,
+  parrentContentSetter
 }) {
   const [content, setContent] = useState(value || "");
   const [labelStyleSelector, setLabelStyleSelector] = useState(
@@ -46,6 +47,8 @@ export default function InputElement({
 
   const handleTypeing = (e) => {
     setContent(e.target.value);
+    if(parrentContentSetter)
+        parrentContentSetter(e);
   };
 
   return (

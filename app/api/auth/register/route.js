@@ -1,31 +1,34 @@
 // /api/auth/register
 import { StatusCodes } from "http-status-codes";
-import { CustomError } from "../../../../utils/CustomError";
 import User from "../../../../models/user";
 import { registerDataSchema } from "../../../../validators/register";
 import errorHandler from "../../../../utils/errorHandler";
+import { redis } from "../../../../db/redisClient";
+import { CustomError } from "../../../../utils/CustomError";
 
 export async function POST(req) {
   try {
-    const { firstName, lastName, email, password, retypedPassword, phone } =
-      await req.json();
+    console.log(req);
+    const body = await req.json();
 
     // validate recieved data
-    registerDataSchema.parse({
-      firstName,
-      lastName,
-      email,
-      phone,
-      password,
-      retypedPassword,
-    });
+    const { firstName, lastName, email, password, phone } =
+      registerDataSchema.parse(body);
 
-    // intentional sleeper
-    await new Promise((res, rej) => {
-      setTimeout(() => {
-        return res();
-      }, 3000);
-    });
+    // check if otp code is validated
+    const emailOtpCode = await redis.get(email);
+    if (!emailOtpCode) {
+      throw new CustomError(
+        "OTP entry missing for current user",
+        StatusCodes.UNAUTHORIZED,
+      );
+    }
+    const { confirmed = false } = JSON.parse(emailOtpCode);
+    if (!confirmed)
+      throw new CustomError(
+        "OTP code was not confirmed",
+        StatusCodes.FORBIDDEN,
+      );
 
     // create entry in DB
     const user = await User.create({
@@ -46,9 +49,9 @@ export async function POST(req) {
       },
       {
         status: StatusCodes.CREATED,
-      }
+      },
     );
-  } catch (error){
-    return errorHandler(error)
+  } catch (error) {
+    return errorHandler(error);
   }
 }

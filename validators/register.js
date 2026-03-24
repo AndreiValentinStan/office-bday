@@ -1,6 +1,8 @@
 import z from "zod";
 import { passwordSchema } from "./passwordSchema";
 
+export const emailSchema = z.email();
+
 export const registerDataSchema = z
   .object({
     firstName: z.string(),
@@ -12,13 +14,13 @@ export const registerDataSchema = z
         "Phone number must be 10 digits long (can include country prefix)"
       )
       .optional(),
-    email: z.email(),
+    email: emailSchema,
     password: passwordSchema,
-    retypedPassword: passwordSchema,
+    passwordConfirm: passwordSchema,
   })
   .refine(
-    ({ password, retypedPassword }) => {
-      return password === retypedPassword;
+    ({ password, passwordConfirm }) => {
+      return password === passwordConfirm;
     },
     {
       error: "Provided passwordsd are different!",
