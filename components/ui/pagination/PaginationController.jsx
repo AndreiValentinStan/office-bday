@@ -1,4 +1,10 @@
+"use client";
+import { useRouter } from "next/navigation";
 import pagination from "../../../utils/paginationRenderer";
+
+function setCurrentPageHandler(pageNumber, router) {
+  router.replace(`/accounts?page=${pageNumber}&limit=${20}`);
+}
 
 export default function PaginationController({
   totalCount,
@@ -6,6 +12,8 @@ export default function PaginationController({
   changePageHandler,
 }) {
   console.log({ currentPage, totalCount });
+  const router = useRouter();
+
   const pages = pagination(currentPage, totalCount);
   return (
     <div className="w-full flex justify-center items-center ">
@@ -18,7 +26,12 @@ export default function PaginationController({
             className="px-2 py-1 mx-1 rounded-sm leading-none aria-disabled:hover:cursor-pointer bg-blue-600 text-gray-100 aria-disabled:bg-gray-100 aria-disabled:border-none aria-disabled:text-gray-700 aria-disabled:hover:bg-gray-200 aria-disabled:hover:text-gray-800"
             aria-disabled={pageNumber !== currentPage}
             key={index}
-            onClick={() => changePageHandler(pageNumber)}
+            onClick={() => {
+              if (changePageHandler) {
+                return changePageHandler(pageNumber);
+              }
+              setCurrentPageHandler(pageNumber, router);
+            }}
           >
             {pageNumber}
           </span>

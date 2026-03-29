@@ -1,26 +1,28 @@
-import { Pagination } from "flowbite-react";
 import AccountsList from "./AccountsList";
 import PaginationController from "../pagination/PaginationController";
+import PageCountController from "./PageCountController";
 
-export default async function AccountsCard({ accountsArray, searchParams }) {
-    console.log(accountsArray, searchParams);
+export default async function AccountsCard({
+  accountsArray,
+  totalCount,
+  limit = 10,
+  page = 1,
+}) {
   return (
     <>
       {/* results per page */}
-      <section >
-        <select className="border-none cursor-pointer">
-          <option>10</option>
-          <option>50</option>
-          <option>100</option>
-        </select>
-      </section>
+      <PageCountController />
       {/* pending accounts list */}
       <section className="h-full overflow-auto">
         <AccountsList accountsArray={accountsArray} />
       </section>
       {/* pagination */}
-      <section className="bg-red-200">
-        <PaginationController resultsPerPage={10} totalCount={accountsArray.length} currentPage={1}/>
+      <section className="">
+        <PaginationController
+          resultsPerPage={limit}
+          totalCount={Math.ceil(totalCount / limit)}
+          currentPage={page}
+        />
       </section>
     </>
   );

@@ -1,27 +1,38 @@
 import AccountsCard from "../../../components/ui/pendingAccounts/AccountsCard";
 import User from "../../../models/user";
 
-async function fetchPendingAccounts() {
+async function fetchPendingAccounts(page = 1, limit = 20) {
   let pendingAccounts = [];
+  let count = 0;
   try {
-    pendingAccounts = await User.findAndCountAll({
+    const data = await User.findAndCountAll({
       where: {
         status: "PENDING",
       },
       attributes: ["first_name", "last_name", "email", "status"],
+      offset: (parseInt(page) - 1) * limit,
+      limit: parseInt(limit),
+      
     });
+    pendingAccounts = data.rows;
+    count = data.count;
   } catch (err) {
     console.log(err);
   } finally {
-    return pendingAccounts;
+    return {
+      count,
+      rows: pendingAccounts,
+    };
   }
 }
 
 const cardsStyle = "bg-gray-50 p-3 rounded-sm flex flex-col w-full";
 
 export default async function Accounts({ searchParams }) {
-  const res = await searchParams;
-  const { count, rows: accounts } = (await fetchPendingAccounts()) || {};
+  const { page, limit } = await searchParams;
+
+  const { count, rows: accounts } =
+    (await fetchPendingAccounts(page, limit)) || {};
   return (
     <div className="w-full h-dvh flex flex-col items-center p-5 gap-y-5 overflow-hidden">
       {/* title */}
@@ -44,7 +55,7 @@ export default async function Accounts({ searchParams }) {
             </span>
           </div>
         ) : (
-          <AccountsCard accountsArray={accounts} />
+          <AccountsCard accountsArray={accounts} totalCount={count} page={page} limit={limit}/>
         )}
       </section>
     </div>
