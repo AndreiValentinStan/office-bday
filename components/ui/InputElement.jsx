@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-const embededDefaultStyle = `top-1/2 -translate-y-1/2 left-4 text-gray-400 text-md absolute italic`;
-const embededFloatStyle = `-top-[0.9rem] bg-white left-2 px-1 text-black/70 text-sm absolute italic`;
-const baseStyle = `select-none pointer-events-none font-customFont transition-all duration-150 ease-in-out`;
+const embededDefaultStyle =  `translate-y-0 left-4 text-gray-400 text-md absolute italic`;
+const embededFloatStyle = `-translate-y-[1.25rem] bg-white left-2 text-black/70 text-sm absolute italic`;
+const baseStyle = `select-none pointer-events-none font-customFont transition-[transform, background-color] ease-in-out duration-200 top-[1.1rem] px-[2px] rounded-md h-1 flex items-center`; 'transition-all duration-150 ease-in-out'
 
 export default function InputElement({
   label,
