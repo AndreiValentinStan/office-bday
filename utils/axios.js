@@ -44,6 +44,7 @@ export default class Axios {
                 "/auth/refresh-token",
               );
               console.log({ respFromResp: resp });
+              console.log({oldToken: Axios.axiosInstance.defaults.headers.common})
               if (resp.status === 200) {
                 Axios.setAccessToken(resp.data.accessToken);
                 Axios.activeRequest = false;

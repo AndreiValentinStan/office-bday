@@ -1,4 +1,5 @@
 "use client";
+import { type } from "node:os";
 import Axios from "../../utils/axios";
 import { createContext, useEffect, useReducer } from "react";
 
@@ -7,6 +8,9 @@ const initialAuthState = {
   email: null,
   isLogged: false,
   role: null,
+  firstName: null,
+  lastName: null,
+  phone: null,
 };
 
 export const Auth = createContext(initialAuthState);
@@ -35,6 +39,11 @@ function reducer(state, action) {
         ...state,
         ...payload,
       };
+    case 'UPDATE USER':
+      return {
+        ...state,
+        ...payload
+      }
     default:
       console.log("auth default case");
       return state;
@@ -62,7 +71,7 @@ export default function AuthProvider({ children }) {
     });
   }
 
-  function login(accesToken, email, role) {
+  function login(accesToken, email, role, firstName, lastName, phone) {
     Axios.setAccessToken(accesToken);
     localStorage.setItem("SESSION", "ESTABLISHED");
     dispatch({
@@ -70,15 +79,40 @@ export default function AuthProvider({ children }) {
       payload: {
         email,
         role,
+        firstName,
+        lastName,
+        phone,
       },
     });
+  }
+
+  function updateUserData(userData){
+    dispatch({
+      type: 'UPDATE USER',
+      payload: {
+        ...userData
+      }
+    })
+  }
+
+  function getUserInfo(...attributes) {
+    return Object.keys(state)
+      .filter((key) => {
+        return attributes.includes(key)
+      })
+      .reduce((accumulator, currentKey) => {
+        return {
+          ...accumulator,
+          [currentKey]: state[currentKey],
+        };
+      }, {});
   }
 
   useEffect(() => {
     // register axios logout -> used on axios interceptor
     Axios.logout = () => {
       console.log("ar trebui sa logout");
-      localStorage.setItem("SESSION", 'DROPPED')
+      localStorage.setItem("SESSION", "DROPPED");
       dispatch({
         type: "LOGOUT",
         payload: initialAuthState,
@@ -88,10 +122,10 @@ export default function AuthProvider({ children }) {
     async function setSession() {
       try {
         const resp = await Axios.axiosInstance.post("/auth/refresh-token");
-        console.log({ resp });
         if (resp?.status === 200 && resp?.data?.accessToken) {
           console.log("Session initialized by quering new access token");
-          login(resp.data.accesToken, resp.data.user.email, "regular");
+          const {firstName, lastName, phone} = resp.data.user;
+          login(resp.data.accesToken, resp.data.user.email, "regular", firstName, lastName, phone);
           return;
         }
         console.log("Cant init session auth");
@@ -103,7 +137,7 @@ export default function AuthProvider({ children }) {
   }, []);
 
   return (
-    <Auth.Provider value={{ ...state, login, initialize }}>
+    <Auth.Provider value={{ ...state, login, initialize, getUserInfo, updateUserData }}>
       {children}
     </Auth.Provider>
   );

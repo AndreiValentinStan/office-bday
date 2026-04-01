@@ -211,7 +211,7 @@ export async function POST(request) {
         process.env.JWT_SECRET,
         {
           subject: session.user_id,
-          expiresIn: "1s",
+          expiresIn: "5m",
         },
         (err, token) => {
           if (err) return reject("Couldn`t generate access token!");
@@ -233,10 +233,11 @@ export async function POST(request) {
           ),
           "full_name",
         ],
+        ['first_name', 'firstName'],
+        ['last_name', 'lastName'],
+        'phone'
       ],
     });
-
-    console.log(accessToken);
 
     return Response.json(
       {

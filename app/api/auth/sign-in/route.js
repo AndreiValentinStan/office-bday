@@ -28,6 +28,9 @@ export async function POST(request) {
       attributes: [
         ["password", "dbPasswdHash"],
         ["id", "userId"],
+        ["first_name", "firstName"],
+        ["last_name", "lastName"],
+        "phone",
       ],
       where: {
         email: email,
@@ -43,7 +46,7 @@ export async function POST(request) {
       );
 
     // destructure values from model instance
-    const { dbPasswdHash, userId } =
+    const { dbPasswdHash, userId, firstName, lastName, phone } =
       JSON.parse(JSON.stringify(user.pop())) || {};
 
     // check if required values from user exists
@@ -108,7 +111,7 @@ export async function POST(request) {
         },
         process.env.JWT_SECRET,
         {
-          expiresIn: "100s",
+          expiresIn: "1500s",
           subject: userId,
         },
         (err, token) => {
@@ -118,11 +121,19 @@ export async function POST(request) {
       );
     });
 
+    console.log({ user });
+
     return Response.json(
       {
         success: true,
         error: null,
-        data: { accessToken, email },
+        data: {
+          accessToken,
+          email,
+          firstName,
+          lastName,
+          phone,
+        },
       },
       {
         status: StatusCodes.OK,

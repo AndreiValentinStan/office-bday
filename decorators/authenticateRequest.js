@@ -9,8 +9,9 @@ import errorHandler from "../utils/errorHandler";
 import { NextRequest } from "next/server";
 
 export const authenticateRequest = (next) => {
-  return async (req) => {
+  return async (...rest) => {
     try {
+      const [req, ...restRequest] = rest;
       // extract authorization header
       const authorization = (await headers()).get("authorization");
       if (!authorization || !authorization.startsWith("Bearer="))
@@ -38,10 +39,10 @@ export const authenticateRequest = (next) => {
       });
 
       // attach encapsulatedData to originalr equest object
-      NextRequest.prototype.encpasulatedData = decodedData;
+      NextRequest.prototype.encapsulatedData = decodedData;
       //Request.prototype.encpasulatedData = decodedData;
-      const newRequest = new NextRequest(req); 
-      return next(newRequest);
+      const newRequest = new NextRequest(req);
+      return next(newRequest, ...restRequest);
     } catch (e) {
       return errorHandler(e);
     }

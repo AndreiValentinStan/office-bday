@@ -26,7 +26,7 @@ export default function LoginForm() {
     try {
       const response = await post(
         "/auth/sign-in",
-        { email: "test@email.com", password: "AnaAre23Mere!" },
+        { email: "test@email.com", password: "Alex&bogdan627843" },
         {
           headers: { "Content-Type": "application/json" },
         },
@@ -41,8 +41,9 @@ export default function LoginForm() {
           headers: { "Content-Type": "application/json" },
         },
       ); */
-
-      login(response.accessToken, response.email, "admin");
+      console.log(response);
+      
+      login(response.accessToken, response.email, "admin", response.firstName, response.lastName, response.phone);
       e.target.form.reset();
     } catch (err) {
       console.log(err);

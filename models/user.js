@@ -1,5 +1,5 @@
 import { sequelize } from "../db/connectionDB";
-import { genSalt, hash } from "bcryptjs";
+import { compare, genSalt, hash } from "bcryptjs";
 
 import { STRING, UUIDV4, UUID, ENUM } from "sequelize";
 
@@ -41,8 +41,8 @@ const User = sequelize.define("Users", {
   },
   status: {
     type: ENUM,
-    values: ['ACTIVE', 'PENDING', 'REVOKED'],
-    defaultValue: 'PENDING'
+    values: ["ACTIVE", "PENDING", "REVOKED"],
+    defaultValue: "PENDING",
   },
   password: {
     type: STRING,
@@ -54,6 +54,15 @@ User.beforeCreate(async (user) => {
   const salt = await genSalt();
   const hashedPasswd = await hash(user.password, salt);
   user.password = hashedPasswd;
+});
+
+User.beforeBulkUpdate(async (user) => {
+  console.log({user});
+  if (user?.attributes?.password) {
+    const salt = await genSalt();
+    const hashedPassword = await hash(user.attributes.password, salt);
+    user.attributes.password = hashedPassword;
+  }
 });
 
 export default User;

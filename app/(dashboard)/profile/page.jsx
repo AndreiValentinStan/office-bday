@@ -2,11 +2,7 @@ import ProfileForm from "../../../components/ui/profile/Form";
 
 const cardsStyle = "bg-gray-50 p-3 rounded-sm flex flex-col w-full";
 
-function fetchUserData() {
-
-}
-
-export default function Profile({}) {
+export default function Profile() {
   return (
     <div className="w-full h-dvh flex flex-col items-center p-5 gap-y-5 overflow-hidden">
       {/* title */}

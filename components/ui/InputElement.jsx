@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-const embededDefaultStyle =  `translate-y-0 left-4 text-gray-400 text-md absolute italic`;
+const embededDefaultStyle = `translate-y-0 left-4 text-gray-400 text-md absolute italic`;
 const embededFloatStyle = `-translate-y-[1.25rem] bg-white left-2 text-black/70 text-sm absolute italic`;
-const baseStyle = `select-none pointer-events-none font-customFont transition-[transform, background-color] ease-in-out duration-200 top-[1.1rem] px-[2px] rounded-md h-1 flex items-center`; 'transition-all duration-150 ease-in-out'
+const baseStyle = `select-none pointer-events-none font-customFont transition-[transform, background-color] ease-in-out duration-100 top-[1.1rem] px-[2px] rounded-md h-1 flex items-center`;
 
 export default function InputElement({
   label,
@@ -18,18 +18,24 @@ export default function InputElement({
   customDefaultStyle = null,
   value,
   disabled,
-  parrentContentSetter
+  parrentContentSetter,
 }) {
-  const [content, setContent] = useState(value || "");
-  const [labelStyleSelector, setLabelStyleSelector] = useState(
-    content ? "FLOAT" : "DEFAULT"
-  );
-  useEffect(() => {
+  //const [content, setContent] = useState(value || "");
+  // const [labelStyleSelector, setLabelStyleSelector] = useState(
+  /* content */ //value ? "FLOAT" : "DEFAULT"
+  //);
+
+  const [focusStatus, setFocusStatus] = useState(!!value);
+  /* useEffect(() => {
     if (value) {
+      console.log({newValue: value});
       setContent(value);
       setLabelStyleSelector(value ? "FLOAT" : "DEFAULT");
     }
-  }, [value]);
+    console.log({aici: value});
+  }, [value]); */
+  //console.log({name, content});
+  let labelStyleSelector = value || focusStatus ? "FLOAT" : "DEFAULT";
 
   const { containerStyle, inputStyle } = style || {};
 
@@ -37,18 +43,21 @@ export default function InputElement({
   const defaultStyle = customDefaultStyle ?? embededDefaultStyle;
 
   const htmlInputFocusHandler = () => {
-    if (labelStyleSelector === "DEFAULT") setLabelStyleSelector("FLOAT");
+    /* if (labelStyleSelector === "DEFAULT") */ /* setLabelStyleSelector("FLOAT"); */ //labelStyleSelector = 'FLOAT'
+    setFocusStatus(true);
   };
 
   const htmlInputBlurHandler = () => {
-    if (labelStyleSelector === "FLOAT" && !content)
-      setLabelStyleSelector("DEFAULT");
+    /* if (labelStyleSelector === "FLOAT" && !value)
+      setLabelStyleSelector("DEFAULT"); */
+    if (!value) {
+      setFocusStatus(false);
+    }
   };
 
   const handleTypeing = (e) => {
-    setContent(e.target.value);
-    if(parrentContentSetter)
-        parrentContentSetter(e);
+    //setContent(e.target.value);
+    if (parrentContentSetter) parrentContentSetter(e);
   };
 
   return (
@@ -74,15 +83,15 @@ export default function InputElement({
           type={inputType}
           name={name}
           required={required}
-          value={content}
+          value={value || ""}
           onChange={handleTypeing}
           onFocus={htmlInputFocusHandler}
           onBlur={htmlInputBlurHandler}
           autoComplete="off"
-          disabled={disabled || false}
+          disabled={!!disabled}
           className={
             inputStyle ||
-            "rounded-md border border-gray-400 h-8 focus-visible:outline-none focus:ring-1 focus:border-blue-700 focus:ring-blue-700 p-2 dark:bg-slate-800"
+            "rounded-md border border-gray-400 h-8 focus-visible:outline-none focus:ring-1 focus:border-blue-700 p-2 dark:bg-slate-800 disabled:text-red-900"
           }
         ></input>
         {children}
