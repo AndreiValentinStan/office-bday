@@ -19,7 +19,7 @@ const employeesBirthdayNotify = async (req) => {
 
 export async function GET() {
   const today =  moment().format("MMDD").toString();
-  const lastDay = moment().add(4, 'days').format('MMDD').toString();
+  const lastDay = moment().add(10, 'days').format('MMDD').toString();
 
   const dailyCelebrations = await Employee.findAll({
     attributes: ["first_name", "last_name"],

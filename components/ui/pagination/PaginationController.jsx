@@ -2,19 +2,21 @@
 import { useRouter } from "next/navigation";
 import pagination from "../../../utils/paginationRenderer";
 
-function setCurrentPageHandler(pageNumber, router) {
-  router.replace(`/accounts?page=${pageNumber}&limit=${20}`);
+function setCurrentPageHandler(pageNumber, router, limit) {
+  router.replace(`/accounts?page=${pageNumber}&limit=${limit}`);
 }
 
 export default function PaginationController({
   totalCount,
   currentPage,
   changePageHandler,
+  limit
 }) {
-  console.log({ currentPage, totalCount });
+  
   const router = useRouter();
 
   const pages = pagination(currentPage, totalCount);
+
   return (
     <div className="w-full flex justify-center items-center ">
       <span className="px-1 py-1 mx-1 rounded-sm leading-none text-blue-500 hover:cursor-pointer hover:text-blue-700 hover:border-blue-400 border border-transparent">
@@ -30,7 +32,7 @@ export default function PaginationController({
               if (changePageHandler) {
                 return changePageHandler(pageNumber);
               }
-              setCurrentPageHandler(pageNumber, router);
+              setCurrentPageHandler(pageNumber, router, limit);
             }}
           >
             {pageNumber}
