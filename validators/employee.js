@@ -6,12 +6,12 @@ export const employeeDataSchema = z.object({
     .string()
     .min(2, "First Name must be at least 2 characters long")
     .max(50, "First Name must be less than 50 characters long")
-    .regex(/^[a-zA-Z]+$/, "First name must contain only letters"),
+    .regex(/^[a-zA-Z-/]+$/, "First name must contain only letters and optional '-' character"),
   last_name: z
     .string()
     .min(2, "Last Name must be at least 2 characters long")
     .max(50, "Last Name must be less than 50 characters long")
-    .regex(/^[a-zA-Z]+$/, "Last name must contain only letters"),
+    .regex(/^[a-zA-Z-/]+$/, "Last name must contain only letters and optional '-' character"),
   date_of_birth: z
     .string()
     .regex(

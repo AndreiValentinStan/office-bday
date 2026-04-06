@@ -3,7 +3,7 @@ import errorHandler from "../../../../utils/errorHandler";
 import { Employee } from "../../../../models";
 import { authenticateRequest } from "../../../../decorators/authenticateRequest";
 
-export const PUT = authenticateRequest(routeHandler);
+export const PATCH = authenticateRequest(routeHandler);
 
 async function routeHandler(req) {
   try {
@@ -12,13 +12,19 @@ async function routeHandler(req) {
       await req.json();
 
     // data validation
-    const employeeData = EmployeeSchema.parse({
+    let employeeData = EmployeeSchema.parse({
       id,
       first_name,
       last_name,
       parent_first_name,
       date_of_birth,
     });
+
+    // check if parent first name is missing
+    // set parentFirstName to null in DB
+   
+    if (typeof employeeData.parent_first_name === "undefined")
+      employeeData.parent_first_name = null;
 
     // update employee data
     const dbResponse = await Employee.update(employeeData, {
