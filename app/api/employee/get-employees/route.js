@@ -9,7 +9,6 @@ export const GET = authenticateRequest(handler);
 
 async function handler(req) {
   try {
-    console.log({ url: req.nextUrl });
     const params = req.nextUrl.searchParams;
 
     const searchParams = Object.fromEntries(params.entries());

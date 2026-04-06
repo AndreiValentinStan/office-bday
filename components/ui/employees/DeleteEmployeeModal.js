@@ -2,6 +2,7 @@ import { Spinner } from "flowbite-react";
 import moment from "moment";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import ApiInterface from "@/utils/ApiInterface";
 
 const buttonBaseStyle = `px-3 py-1 rounded-sm`;
 const dataGroupStyle = "grid grid-cols-2 text-sm";
@@ -16,7 +17,8 @@ export default function DeleteEmployeeModal({
   async function deleteHandler() {
     try {
       setRequestState("fetching");
-      const response = await fetch("/api/employee/delete-employee", {
+      await ApiInterface.delete(`/employee/delete-employee/${data.id}`);
+      /* const response = await fetch("/api/employee/delete-employee", {
         method: "DELETE",
         headers: {
           "Content-Type": "applicaiton/json",
@@ -24,10 +26,10 @@ export default function DeleteEmployeeModal({
         body: JSON.stringify({
           id: data.id,
         }),
-      });
-      const { success, message } = (await response.json()) || {};
-      if (!success) throw Error("Delete error");
-      toast.success(message || "Success!");
+      }); */
+      /* const { success, message } = (await response.json()) || {};
+      if (!success) throw Error("Delete error"); */
+      /* toast.success(message || "Success!"); */
     } catch (err) {
       console.log(err);
       toast.error(err.messsage);

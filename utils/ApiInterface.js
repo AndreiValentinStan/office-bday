@@ -25,6 +25,7 @@ function crudGenerator() {
     get: expiredTokenHandler(axiosInstance.get),
     post: expiredTokenHandler(axiosInstance.post),
     patch: expiredTokenHandler(axiosInstance.patch),
+    delete: expiredTokenHandler(axiosInstance.delete),
   };
 }
 
