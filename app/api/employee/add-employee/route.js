@@ -7,26 +7,16 @@ export const POST = authenticateRequest(routeHandler);
 
 async function routeHandler(req) {
   try {
-    const data = await req.json();
-    const {
-      firstName: first_name,
-      lastName: last_name,
-      birthDate: date_of_birth,
-      parentName: parent_first_name,
-    } = data || {};
-    const employeeData = EmployeeSchema.parse({
-      first_name,
-      last_name,
-      parent_first_name,
-      date_of_birth,
-    });
+    const employeeData = await EmployeeSchema.transform(
+      ({ firstName, lastName, birthDate, parentName }) => ({
+        first_name: firstName,
+        last_name: lastName,
+        date_of_birth: birthDate,
+        parent_first_name: parentName,
+      }),
+    ).parseAsync(await req.json());
 
-    await Employee.create({
-      first_name: employeeData.first_name,
-      last_name: employeeData.last_name,
-      date_of_birth: employeeData.date_of_birth,
-      parent_first_name: employeeData.parent_first_name,
-    });
+    await Employee.create({...employeeData});
     return Response.json({
       success: true,
       data: "employee created",

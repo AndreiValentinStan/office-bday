@@ -12,8 +12,8 @@ import { compare } from "bcryptjs";
 
 const validator = z
   .strictObject({
-    firstName: firstNameSchema,
-    lastName: lastNameSchema,
+    firstName: firstNameSchema.optional(),
+    lastName: lastNameSchema.optional(),
     phone: phoneSchema,
     actualPassword: passwordSchema.optional(),
     newPassword: passwordSchema.optional(),

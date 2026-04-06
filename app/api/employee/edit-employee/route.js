@@ -7,29 +7,27 @@ export const PATCH = authenticateRequest(routeHandler);
 
 async function routeHandler(req) {
   try {
-    // extract data from body
-    const { first_name, last_name, parent_first_name, date_of_birth, id } =
-      await req.json();
-
     // data validation
-    let employeeData = EmployeeSchema.parse({
-      id,
-      first_name,
-      last_name,
-      parent_first_name,
-      date_of_birth,
-    });
+    let employeeData = await EmployeeSchema.transform(
+      ({ firstName, lastName, birthDate, parentName, id }) => ({
+        first_name: firstName,
+        last_name: lastName,
+        date_of_birth: birthDate,
+        parent_first_name: parentName,
+        id
+      }),
+    ).parseAsync(await req.json());
 
     // check if parent first name is missing
     // set parentFirstName to null in DB
-   
+
     if (typeof employeeData.parent_first_name === "undefined")
       employeeData.parent_first_name = null;
 
     // update employee data
-    const dbResponse = await Employee.update(employeeData, {
+    const dbResponse = await Employee.update({...employeeData}, {
       where: {
-        id,
+        id: employeeData.id,
       },
     });
 

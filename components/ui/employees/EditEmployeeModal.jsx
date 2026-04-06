@@ -11,25 +11,25 @@ const employeeFields = {
     label: "First Name",
     type: "text",
     required: true,
-    name: "first_name",
+    name: "firstName",
   },
   last_name: {
     label: "Last Name",
     type: "text",
     required: true,
-    name: "last_name",
+    name: "lastName",
   },
   parent_first_name: {
     label: "Parent First Name",
     type: "text",
     required: false,
-    name: "parent_first_name",
+    name: "parentName",
   },
   date_of_birth: {
     label: "Birth Date",
     type: "text",
     required: true,
-    name: "date_of_birth",
+    name: "birthDate",
   },
 };
 
@@ -90,7 +90,7 @@ export default function EditEmployeeModal({
         if (!employeeData[key].value) continue;
         patchData = {
           ...patchData,
-          [key]: employeeData[key].value,
+          [employeeData[key].name]: employeeData[key].value,
         };
       }
 
@@ -106,12 +106,12 @@ export default function EditEmployeeModal({
     }
   }
 
-  function setUserData({ target }) {
+  function setUserData(name, value) {
     setEmployeeData((employee) => ({
       ...employee,
-      [target.name]: {
-        ...employee[target.name],
-        value: target.value,
+      [name]: {
+        ...employee[name],
+        value: value,
       },
     }));
   }
@@ -152,7 +152,9 @@ export default function EditEmployeeModal({
                     name={employeeField.name}
                     value={employeeField.value}
                     disabled={requestStatus === "fetching"}
-                    parrentContentSetter={setUserData}
+                    parrentContentSetter={({ target }) => {
+                      setUserData(employeeFieldName, target.value);
+                    }}
                   />
                 );
               })}

@@ -2,17 +2,23 @@ import moment from "moment";
 import z from "zod";
 
 export const employeeDataSchema = z.object({
-  first_name: z
+  firstName: z
     .string()
     .min(2, "First Name must be at least 2 characters long")
     .max(50, "First Name must be less than 50 characters long")
-    .regex(/^[a-zA-Z-/]+$/, "First name must contain only letters and optional '-' character"),
-  last_name: z
+    .regex(
+      /^[a-zA-Z-/]+$/,
+      "First name must contain only letters and optional '-' character",
+    ),
+  lastName: z
     .string()
     .min(2, "Last Name must be at least 2 characters long")
     .max(50, "Last Name must be less than 50 characters long")
-    .regex(/^[a-zA-Z-/]+$/, "Last name must contain only letters and optional '-' character"),
-  date_of_birth: z
+    .regex(
+      /^[a-zA-Z-/]+$/,
+      "Last name must contain only letters and optional '-' character",
+    ),
+  birthDate: z
     .string()
     .regex(
       /[0-9]{2}-[0-9]{2}-[0-9]{4}/,
@@ -25,7 +31,6 @@ export const employeeDataSchema = z.object({
         const minAge = process.env.NEXT_PUBLIC_MINIMUM_AGE;
         const minimumOffset = moment().subtract(maxAge, "years");
         const maximumOffset = moment().subtract(minAge, "years");
-        console.log({ formatedDate, minAge, maxAge });
         if (
           moment(formatedDate).isBefore(minimumOffset) ||
           moment(formatedDate).isAfter(maximumOffset)
@@ -37,7 +42,7 @@ export const employeeDataSchema = z.object({
         message: `Birth date is out of interval; It must be greater than ${process.env.NEXT_PUBLIC_MINIMUM_AGE} and lower than ${process.env.NEXT_PUBLIC_MAXIMUM_AGE}`,
       },
     ),
-  parent_first_name: z
+  parentName: z
     .string()
     .min(2, "Parent name must be at least 2 characters long")
     .max(100, "Parent name must be maximum 100 characters long")
