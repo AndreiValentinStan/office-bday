@@ -15,7 +15,7 @@ export default function CellOptionsButton({ id, display, employeeId }) {
         <>
           <div>
             <div
-              className={`bg-blue-700 absolute z-10 text-white gap-y-2 flex flex-col`}
+              className={`bg-blue-700 absolute z-10 text-white gap-y-2 flex flex-col -left-20 -top-8`}
             >
               <span className={optionStyle} id={`edit_${employeeId}`}>
                 Edit

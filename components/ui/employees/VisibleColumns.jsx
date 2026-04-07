@@ -7,7 +7,7 @@ export default function VisibleColumns({ columnsArray, visibilityHandler }) {
   return (
     <section className={sectionsStyle}>
       <span className={titleStyle}>visible columns</span>
-      <div className="flex">
+      <div className="flex flex-wrap">
         {columnsArray.map((column, index) => {
           return (
             <div className="flex gap-x-2 m-4 items-center" key={index}>

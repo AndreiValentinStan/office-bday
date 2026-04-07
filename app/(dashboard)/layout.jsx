@@ -5,7 +5,7 @@ import DashboardGuard from "@/guards/DashboardGuard";
 export default function RootLayout({ children }) {
   return (
     <DashboardGuard>
-      <div className="w-full h-dvh flex">
+      <div className="w-full h-full flex overflow-hidden">
         <Sidebar />
         {children}
       </div>

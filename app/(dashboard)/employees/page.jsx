@@ -138,7 +138,7 @@ export default function Employees() {
   return (
     <>
       <div
-        className="w-full h-dvh p-8 flex flex-col gap-y-2 overflow-y-scroll relative select-none"
+        className="w-full p-8 flex flex-col gap-y-2 relative select-none overflow-auto"
         onClick={(e) => {
           if (e.target.id.includes("edit")) {
             setEditEmployeeId(e.target.id.split("_")[1]);

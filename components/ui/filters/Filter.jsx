@@ -10,7 +10,7 @@ export default function Filter({
   resetFilters,
 }) {
   return (
-    <form className="flex gap-x-5 border border-gray-200 p-6 rounded-md">
+    <form className="flex flex-wrap gap-y-5 justify-center gap-x-5 border border-gray-200 p-6 rounded-md">
       {filters.filters.map((filter, index) => {
         return (
           <FilterField
