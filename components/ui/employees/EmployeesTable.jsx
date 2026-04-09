@@ -73,7 +73,7 @@ export default function EmployeesTable({
         <FetchEmployeeLoadingScreen />
       ) : (
         <div
-          className="overflow-x-auto overflow-y-clip scrollbar scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400 scrollbar-corner-gray-200"
+          className="overflow-x-auto overflow-y-clip scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400 scrollbar-corner-gray-200"
           onClick={(e) => {
             if (e.target.id === "cell-options-button") {
               if (parseInt(e.target.value, 10) === displayDropdown)

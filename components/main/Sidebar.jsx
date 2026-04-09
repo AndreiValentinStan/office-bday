@@ -12,9 +12,9 @@ export default function Sidebar() {
   return (
     <>
       <div
-        className={`bg-blue-700 ${width} h-full transition-all duration-700 overflow-hidden relative`}
+        className={`bg-blue-700 w-0 invisible md:visible h-full md:w-72 opacity-0 md:opacity-100 flex-shrink-0 transition-[width, opacity] duration-500 overflow-hidden relative`} /* ${width} */
       >
-        <div className="min-w-64 p-10">
+        <div className="min-w-72 p-10">
           {/* image */}
           <div className="flex justify-center">
             <img
@@ -30,7 +30,7 @@ export default function Sidebar() {
             <Link className="hover:scale-125 origin-left" href="/accounts">Accounts</Link>
           </div>
           {/* logout button */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-72 flex justify-center">
             <button className='text-white bg-blue-800 border border-blue-900 py-2 px-20 rounded-md hover:bg-blue-900'>Logout</button>
           </div>
         </div>

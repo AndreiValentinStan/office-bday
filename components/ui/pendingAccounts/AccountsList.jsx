@@ -53,7 +53,7 @@ export default function AccountsList({ accountsArray }) {
 
   return (
     <>
-      <section className="overflow-auto scrollbar scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400 scrollbar-corner-transparent">
+      <section className="overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400 scrollbar-corner-transparent">
         <Table hoverable>
           <TableHead>
             <TableRow>
