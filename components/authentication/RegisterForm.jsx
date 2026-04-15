@@ -30,6 +30,7 @@ const formInputElements = [
   {
     label: "Phone Number",
     name: "phone",
+    type: "number",
     required: false,
   },
   {
@@ -330,9 +331,12 @@ export default function RegisterForm() {
     };
   }, [requestStatus]);
 
+
+  console.log({accountData});
+console.log({isOtpVisible});
   return (
     <>
-      <div className="h-dvh w-full bg-white-100 flex flex-col items-center justify-center gap-y-4">
+      <div className="w-full bg-white-100 flex flex-col items-center justify-center gap-y-4 px-2 md:px-0 min-h-0">
         <ErrorToast
           text={error}
           style={`bg-red-200 flex items-center justify-center p-4 text-red-900 rounded-md ${
@@ -342,25 +346,30 @@ export default function RegisterForm() {
         {/* register form */}
         <form
           onSubmit={registerHandler}
-          className={`flex max-w-[600px] flex-wrap justify-center items-center p-10 border border-black/20 rounded-md gap-x-4 gap-y-10 relative transition-all`}
+          className={`flex min-h-0 overflow-y-auto py-5 md:py-10 max-w-[600px] flex-wrap justify-center items-center px-5 rounded-md gap-x-4 gap-y-10 relative transition-all`}
         >
           {isLoading && (
             <div className="absolute w-full h-full bg-white/50 z-10 flex justify-center items-center">
               <Spinner size="lg" className="fill-blue-600"></Spinner>
             </div>
           )}
-          {formInputElements.map((element, index) => (
-            <InputElement
-              label={element?.label || ""}
-              required={element.required}
-              inputType={element.type}
-              style={fieldStyle}
-              key={index}
-              name={element.name}
-              floatEffect={true}
-              parrentContentSetter={handleAccountDataChange}
-            />
-          ))}
+          <div className="border border-black/20 w-full flex flex-wrap gap-x-5 gap-y-5 p-4 rounded-md">
+            {formInputElements.map((element, index) => {
+              return (
+              <InputElement
+                label={element?.label || ""}
+                required={element.required}
+                inputType={element.type}
+                style={fieldStyle}
+                key={index}
+                value={accountData[element?.name] || ''}
+                name={element.name}
+                floatEffect={true}
+                parrentContentSetter={handleAccountDataChange}
+              />
+            )
+            })}
+          </div>
           <div
             aria-disabled={!isOtpVisible}
             className={`group relative border w-full flex gap-y-4 flex-col items-center overflow-hidden transition-all duration-200 delay-200 bg-slate-100/80 opacity-0 rounded-md aria-disabled:cursor-not-allowed p-2 h-fit ${isOtpVisible ? "opacity-100" : "opacity-30 "}`}
@@ -416,7 +425,7 @@ export default function RegisterForm() {
                       disabled={!requestSended}
                       // autoFocus={index === 0 && otpBoxes.length === 0}
                       type="text"
-                      className={`group-aria-disabled:cursor-not-allowed w-10 text-sm text-center caret-transparent rounded-md border-2 focus-within:border-gray-200 border-b-4 border-gray-200 ${isActive ? " !border-blue-600 border-b-blue-600" : ""}`}
+                      className={`group-aria-disabled:cursor-not-allowed w-10  text-center caret-transparent rounded-md border-2 focus-within:border-gray-200 border-b-4 border-gray-200 ${isActive ? " !border-blue-600 border-b-blue-600" : ""}`}
                       id={index}
                       value={otpBoxes[index] ?? ""}
                       onChange={(e) => e.preventDefault()}

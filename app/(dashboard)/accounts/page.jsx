@@ -8,7 +8,7 @@ export default async function Accounts({searchParams}) {
   const {page=1, limit=10} = await searchParams || {}
   console.log({page, limit});
   return (
-    <div className="w-full h-dvh flex flex-col items-center p-5 gap-y-5 overflow-hidden">
+    <div className="w-full h-full flex flex-col items-center p-5 gap-y-5 overflow-hidden">
       {/* title */}
       <section className={cardsStyle}>
         <span className="text-2xl">Pending Accounts</span>

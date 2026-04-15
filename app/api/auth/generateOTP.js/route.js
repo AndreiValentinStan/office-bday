@@ -24,12 +24,12 @@ export async function POST(req) {
         otpCode,
         confirmed: false,
       }),
-      /* {
+      {
         expiration: {
           type: "EX",
-          value: 600,
+          value: 24  * 3600,
         },
-      }, */
+      },
     );
 
     console.log({ res, otpCode });

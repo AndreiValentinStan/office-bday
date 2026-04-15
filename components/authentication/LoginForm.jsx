@@ -71,7 +71,7 @@ export default function LoginForm() {
         <InputElement label="Password" inputType="password" required={true}>
           <Link
             href="/forgot-password"
-            className="absolute top-[2px] right-0 text-blue-600 text-xs"
+            className="absolute -top-1 right-0 text-blue-600 text-xs"
           >
             Forgot password?
           </Link>

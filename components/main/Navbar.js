@@ -8,6 +8,7 @@ import { IoPeopleCircle } from "react-icons/io5";
 import { FaUserClock } from "react-icons/fa6";
 import { useSelectedLayoutSegment } from "next/navigation";
 import { FaUserEdit } from "react-icons/fa";
+import { IoIosSettings } from "react-icons/io";
 
 
 const dropdownTheme = {
@@ -44,32 +45,35 @@ const dropdownTheme = {
   inlineWrapper: "flex items-center",
 };
 
-function snakeCaseName(firstName, lastName) {
-    if(!firstName || !lastName)
+function snakeCaseName(firstName) {
+    if(!firstName)
         return '';
-  return `${firstName[0].toUpperCase() + firstName.slice(1)} ${lastName[0] + lastName.slice(1)}`;
+  return `${firstName[0].toUpperCase() + firstName.slice(1)}`;
 }
 
 function renderIcon(location){
+    const style = 'w-8 h-8'
     switch(location){
         case 'employees':
-            return <FaPeopleGroup/>
+            return <FaPeopleGroup className={style}/>
         case 'accounts':
-            return <FaUserClock/>
+            return <FaUserClock className={style}/>
         case 'profile':
-            return <FaUserEdit/>
+            return <FaUserEdit className={style}/>
+        case 'settings': 
+            return <IoIosSettings className={style}/>
         default:
             return <></>
     }
 }
 
 export default function Navbar({ children }) {
-  const { firstName, lastName } = useAuth();
+  const { firstName } = useAuth();
   const activePage = useSelectedLayoutSegment();
 
   return (
     <div className="flex flex-col w-full h-dvh overflow-hidden"> {/*  */}
-      <div className="md:h-0 h-14 md:p-0 flex w-full bg-blue-500 opacity-100 md:opacity-0 transition-[opacity] duration-100 flex-shrink-0 items-center justify-center relative py-3">
+      <div className="md:h-0 h-14 md:p-0 flex w-full bg-blue-500 opacity-100 md:opacity-0 flex-shrink-0 items-center justify-center relative py-3">
         {/* burger */}
         <div className="absolute left-5 h-full flex items-center">
           <Dropdown label={renderIcon(activePage)} theme={dropdownTheme}>
@@ -97,7 +101,7 @@ export default function Navbar({ children }) {
             label={
               <>
                 <IoPeopleCircle className="w-6 h-6" />
-                {snakeCaseName(firstName, lastName)}
+                {snakeCaseName(firstName)}
               </>
             }
           >

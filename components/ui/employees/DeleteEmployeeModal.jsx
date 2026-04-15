@@ -48,7 +48,7 @@ export default function DeleteEmployeeModal({
         isModalDisplayed ? "visible" : "invisible"
       }`}
     >
-      <div className="relative bg-slate-800 flex flex-col px-10 py-5 gap-y-10 rounded-md border border-slate-900/50 max-w-[50%]">
+      <div className="relative bg-slate-800 flex flex-col px-10 py-5 gap-y-10 rounded-md border border-slate-900/50 w-full md:w-max mx-5 md: m-0">
         <div
           className={`absolute top-0 left-0 bg-slate-900/80 w-full h-full rounded-md flex flex-col justify-center items-center gap-y-3 ${
             requestState === "fetching" ? "visible" : "invisible"

@@ -36,7 +36,7 @@ const employeeFields = {
 const customFloatStyle = `-translate-y-[1.25rem] bg-slate-800 left-2 text-white text-sm absolute italic`;
 
 const style = {
-  containerStyle: "flex flex-col flex-[0_0_45%] text-gray-100 gap-y-2 relative",
+  containerStyle: "flex flex-col flex-[0_0_80%] md:flex-[0_0_50%] text-gray-100 gap-y-2 relative", /*  */
   inputStyle:
     "rounded-md border border-gray-400 focus-visible:outline-none focus:ring-1 focus:border-blue-700 focus:ring-blue-700 px-2 py-2 bg-slate-800 autofill-slate800",
 };
@@ -123,7 +123,7 @@ export default function EditEmployeeModal({
       }`}
     >
       <form
-        className="relative bg-slate-800 flex flex-col px-10 py-5 gap-y-10 rounded-md border border-slate-900/50 max-w-[50%] transition-[width] duration-300"
+        className="relative bg-slate-800 flex flex-col px-3 lg:px-10 py-5 gap-y-10 rounded-md border border-slate-900/50 m-5 md:max-w-[50%] w-full md:w-min transition-[width] duration-300"
         onSubmit={submitHandler}
       >
         <h1 className="text-xl text-white">Edit User</h1>

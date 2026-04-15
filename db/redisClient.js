@@ -10,6 +10,7 @@ try {
   await client.connect();
 } catch (err) {
   console.log("Can`t create Redis client!", err);
+  throw err;
 }
 
 export const redis = client;

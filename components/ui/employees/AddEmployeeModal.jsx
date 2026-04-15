@@ -127,15 +127,16 @@ export default function AddEmployeeModal({
         }`}
       ></div>
       <div
-        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden transition-all duration-300 ease-in-out flex justify-center items-center ${
           isModalDisplayed ? "w-full h-full" : "w-0 h-0"
         }`}
       >
-        <div className=" absolute bg-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-[1px] border-blue-500 rounded-md flex gap-y-5 gap-x-5 flex-wrap items-center justify-around p-10">
+        {/* top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 */}
+        <div className="w-max h-[90dvh] md:h-max overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent scrollbar-corner-red-500 mx-5 p-7 relative bg-white border-[1px] border-blue-500 rounded-md flex gap-y-5 gap-x-5 flex-wrap items-center justify-around">
           {/* close button */}
           <div
             onClick={closeModalHandler}
-            className="absolute right-1 top-1 text-gray-400 hover:text-gray-600 hover:cursor-pointer hover:bg-gray-100 p-0 rounded-md transition border "
+            className="absolute right-2 top-2 text-gray-400 hover:text-gray-600 hover:cursor-pointer hover:bg-gray-100 p-0 rounded-md transition border "
           >
             <IoIosClose size={"30px"} />
           </div>
@@ -150,7 +151,7 @@ export default function AddEmployeeModal({
             </div>
           )}
           {/* add employee */}
-          <div className="flex flex-col items-center justify-center gap-y-8 relative py-6 px-2 text-slate-700 border border-gray-200 rounded-sm">
+          <div className="w-max flex flex-col items-center justify-center gap-y-8 relative py-6 px-2 text-slate-700 border border-gray-200 rounded-sm">
             <div className="absolute w-full h-full bg-gray-50 opacity-10 -z-10"></div>
             <h1 className=" text-xl">Add employee</h1>
             <div className="flex gap-y-2 flex-col w-full lg:w-4/5 text-sm">
@@ -277,7 +278,7 @@ export default function AddEmployeeModal({
             </h1>
           </div> */}
           {/* import employees */}
-          <div className="flex h-full flex-col items-center justify-center gap-y-11 py-7 relative text-slate-700 border border-gray-200 rounded-sm">
+          <div className="flex flex-col items-center justify-center px-5 gap-y-11 py-7 relative text-slate-700 border border-gray-200 rounded-sm">
             <div className="absolute w-full h-full bg-gray-50 opacity-10 -z-10"></div>
             <h1 className="text-xl">Import employee</h1>
             <div className="flex flex-col gap-y-3 items-center">
