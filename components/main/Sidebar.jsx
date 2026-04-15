@@ -15,8 +15,7 @@ export default function Sidebar() {
       <div
         className={`bg-blue-700 w-0 invisible md:visible md:min-w-72 md:max-w-96 opacity-0 md:opacity-100 flex flex-col justify-between items-center py-5 h-dvh transition-[width, opacity] duration-500 overflow-hidden relative`} /* ${width} */
       >
-        {/* links */}
-        <div className="min-w-full pl-12">
+        <div className="min-w-full">
           {/* image */}
           <div className="flex justify-center">
             <img
@@ -25,7 +24,7 @@ export default function Sidebar() {
             />
           </div>
           {/* links */}
-          <div className="flex flex-col pt-10 gap-y-2 text-xl text-white">
+          <div className="flex flex-col pt-10 gap-y-2 text-xl text-white pl-12">
             <Link className="hover:scale-125 origin-left" href="/employees">
               Employees
             </Link>

@@ -3,12 +3,15 @@
 import { redirect, RedirectType, usePathname } from "next/navigation";
 import { useAuth } from "../hooks/auth";
 
-const protectedRoutes = ["/employees"];
+const protectedRoutes = ["/employees", "/profile", "/accounts"];
 
 export default function DashboardGuard({ children }) {
   const path = usePathname();
-  const { isLogged, role } = useAuth();
-  console.log({isLogged});
+  const { isLogged, role, isSetteled } = useAuth();
+  console.log({isLogged, isSetteled});
+  if(!isSetteled)
+    return
+  
   if (!protectedRoutes.includes(path)) {
     return <>{children}</>;
   }

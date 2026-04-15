@@ -1,5 +1,4 @@
 "use client";
-import { type } from "node:os";
 import Axios from "../../utils/axios";
 import { createContext, useEffect, useReducer } from "react";
 
@@ -11,6 +10,7 @@ const initialAuthState = {
   firstName: null,
   lastName: null,
   phone: null,
+  isSetteled: false,
 };
 
 export const Auth = createContext(initialAuthState);
@@ -39,11 +39,16 @@ function reducer(state, action) {
         ...state,
         ...payload,
       };
-    case 'UPDATE USER':
+    case "UPDATE USER":
       return {
         ...state,
-        ...payload
-      }
+        ...payload,
+      };
+    case "SETTLED":
+      return {
+        ...state,
+        isSetteled: payload,
+      };
     default:
       console.log("auth default case");
       return state;
@@ -86,19 +91,19 @@ export default function AuthProvider({ children }) {
     });
   }
 
-  function updateUserData(userData){
+  function updateUserData(userData) {
     dispatch({
-      type: 'UPDATE USER',
+      type: "UPDATE USER",
       payload: {
-        ...userData
-      }
-    })
+        ...userData,
+      },
+    });
   }
 
   function getUserInfo(...attributes) {
     return Object.keys(state)
       .filter((key) => {
-        return attributes.includes(key)
+        return attributes.includes(key);
       })
       .reduce((accumulator, currentKey) => {
         return {
@@ -124,20 +129,39 @@ export default function AuthProvider({ children }) {
         const resp = await Axios.axiosInstance.post("/auth/refresh-token");
         if (resp?.status === 200 && resp?.data?.accessToken) {
           console.log("Session initialized by quering new access token");
-          const {firstName, lastName, phone} = resp.data.user;
-          login(resp.data.accesToken, resp.data.user.email, "regular", firstName, lastName, phone);
+          const { firstName, lastName, phone } = resp.data.user;
+          login(
+            resp.data.accesToken,
+            resp.data.user.email,
+            "regular",
+            firstName,
+            lastName,
+            phone,
+          );
           return;
         }
         console.log("Cant init session auth");
       } catch (err) {
         console.log(err);
+      } finally {
+        dispatch({
+          type: "SETTLED",
+          payload: true,
+        });
       }
     }
     if (localStorage.getItem("SESSION") === "ESTABLISHED") setSession();
+    else
+      dispatch({
+        type: "SETTLED",
+        payload: true,
+      });
   }, []);
 
   return (
-    <Auth.Provider value={{ ...state, login, initialize, getUserInfo, updateUserData }}>
+    <Auth.Provider
+      value={{ ...state, login, initialize, getUserInfo, updateUserData }}
+    >
       {children}
     </Auth.Provider>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Filter from "../../../components/ui/filters/Filter";
 import EmployeesTable from "../../../components/ui/employees/EmployeesTable";
 import PageCounter from "../../../components/ui/employees/PageCounter";
@@ -30,18 +30,29 @@ export default function Employees() {
   // filter state
   const [filterState, setFilterState] = useState({});
   const [triggerFilter, setTriggerFilter] = useState(false);
+
+  // new filter state
+  const filterStateRef = useRef({page: 1, count: 20});
+
   // filter handler
-  const filterChangeHandler = ({ target }, label) => {
-    setFilterState((s) => ({ ...s, [label]: target.value }));
+  const filterChangeHandler = (changes) => {
+    if(filterStateRef.current)
+      filterStateRef.current = {...filterStateRef.current, ...changes}
   };
+
   // filter dispatch handler
-  function handleFilterDispatch(e) {
-    e.preventDefault();
-    if (Object.entries(filterState).length > 0) setTriggerFilter((t) => !t);
+  function handleFilterDispatch(event, filtersValue) {
+    event.preventDefault();
+    filterChangeHandler({...filtersValue, page: 1, count: 20});
+    setPageNumber(1);
+    setPageSize(20);
+    if (Object.entries(filterStateRef.current).length > 0) setTriggerFilter((t) => !t);
   }
   function resetFilterHandler(e) {
     e.preventDefault();
-    setFilterState({});
+    filterStateRef.current = {page: 1, count: 20}
+    setPageNumber(1);
+    setPageSize(20);
     setTriggerFilter((t) => !t);
   }
   // filter initialization
@@ -74,15 +85,15 @@ export default function Employees() {
     setIsLoading(true);
     try {
       let searchQuery = "";
-      for (const [key, value] of Object.entries(filterState)) {
+      for (const [key, value] of Object.entries(filterStateRef.current)) {
         if (searchQuery.length > 0) searchQuery += "&";
         searchQuery += key.toString() + "=" + value.toString();
       }
       const {
         employees: { count, employees },
       } = await api.get(
-        `/employee/get-employees?count=${pageSize}&page=${pageNumber}${
-          searchQuery.length > 0 ? `&${searchQuery}` : ``
+        `/employee/get-employees${Object.keys(filterStateRef.current).length ? '?' : ''}${
+          searchQuery.length > 0 ? `${searchQuery}` : ``
         }`,
       );
       setEmployees({
@@ -98,22 +109,26 @@ export default function Employees() {
   // page size
   const [pageSize, setPageSize] = useState(20);
 
+  function pageSizeHandler({target}){
+    filterStateRef.current = {...filterStateRef.current, count: target?.value || 20, page: 1};
+    setPageNumber(1);
+    setPageSize(target?.value || 20);
+  }
+
   // page number
   const [pageNumber, setPageNumber] = useState(1);
 
   // modify page size handler
-  function pageSizeHandler(e) {
-    setPageSize(e.target.value);
-    setPageNumber(1);
+  function pageNumberHandler(value) {
+    console.log(value);
+    filterStateRef.current = {...filterStateRef.current, page: value || 1};
+    setPageNumber(value || 1);
   }
 
   // trigger fetch employees
   useEffect(() => {
-    setFilterState({});
-    //setPageSize(20);
-    //setPageNumber(1);
     fetchEmployees();
-  }, [pageSize, triggerFilter, changesTracker]);
+  }, [triggerFilter, pageSize, pageNumber]);
 
   // visible columns
   const displayColumns = [
@@ -186,8 +201,6 @@ export default function Employees() {
           {/* filter unit */}
           <Filter
             filters={filters}
-            filterState={filterState}
-            handleFliterChange={filterChangeHandler}
             handleFilterDispatch={handleFilterDispatch}
             resetFilters={resetFilterHandler}
           ></Filter>
@@ -215,8 +228,8 @@ export default function Employees() {
           currentPage={pageNumber}
           totalCount={Math.ceil(employees?.count / pageSize) || 0}
           changePageHandler={(num) => {
-            console.log({ pageNumber: num });
-            setPageNumber(num);
+            
+            pageNumberHandler(num);
           }}
         />
       </div>

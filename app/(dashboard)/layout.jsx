@@ -9,7 +9,6 @@ export default function RootLayout({ children }) {
       <div className="w-full h-full flex">
         <Sidebar />
         <Navbar>{children}</Navbar>
-        
       </div>
     </DashboardGuard>
   );
