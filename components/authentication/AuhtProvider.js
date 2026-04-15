@@ -160,7 +160,7 @@ export default function AuthProvider({ children }) {
 
   return (
     <Auth.Provider
-      value={{ ...state, login, initialize, getUserInfo, updateUserData }}
+      value={{ ...state, login, initialize, getUserInfo, updateUserData, logout }}
     >
       {children}
     </Auth.Provider>

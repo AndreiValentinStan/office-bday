@@ -1,11 +1,13 @@
 "use client";
 import { useAuth } from "@/hooks/auth";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Sidebar() {
-  const { firstName, lastName, email } = useAuth();
+  const { firstName, lastName, email, logout } = useAuth();
   const [width, setWidth] = useState("w-96");
+  const router = useRouter();
   const handleToggle = () => {
     if (width === "w-96") return setWidth("w-0");
     else return setWidth("w-96");
@@ -49,7 +51,14 @@ export default function Sidebar() {
             {/* email */}
             <span>{email}</span>
           </div>
-          <button className="text-white bg-blue-800 border border-blue-900 py-2 px-20 rounded-md hover:bg-blue-900">
+          <button
+            className="text-white bg-blue-800 border border-blue-900 py-2 px-20 rounded-md hover:bg-blue-900"
+            onClick={(e) => {
+              e.preventDefault();
+              logout();
+              router.replace('/login')
+            }}
+          >
             Logout
           </button>
         </div>
