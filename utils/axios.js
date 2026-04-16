@@ -31,7 +31,7 @@ export default class Axios {
             // abort if active request
             if (Axios.activeRequest) {
               console.log("Already in process of requesting new token");
-              return null;
+              return {success: false, error: 'Waiting for authentication'};
             }
             if (
               response.status === 401 &&

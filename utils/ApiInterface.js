@@ -9,11 +9,19 @@ function expiredTokenHandler(method) {
       if (response?.retry) {
         response = await method(...requestParameters);
       }
-      if (!response || response?.status !== 200 || !response?.data?.success) {
-        if (response?.data?.error) throw Error(response?.data?.error?.message);
-        throw Error("Request error occured!");
+      const {
+        data: { success, data: apiData, error },
+      } = response || {
+        data: {
+          success: 'null',
+          data: null,
+          error: null,
+        },
+      };
+      if (!success) {
+        throw new Error(error.message || "Request error");
       }
-      return response.data.data;
+      return apiData;
     } catch (err) {
       throw err;
     }

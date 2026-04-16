@@ -7,11 +7,10 @@ const protectedRoutes = ["/employees", "/profile", "/accounts"];
 
 export default function DashboardGuard({ children }) {
   const path = usePathname();
-  const { isLogged, role, isSetteled } = useAuth();
+  const { isLogged, isSetteled } = useAuth();
+ 
+  if (!isSetteled) return;
 
-  if(!isSetteled)
-    return
-  
   if (!protectedRoutes.includes(path)) {
     return <>{children}</>;
   }
@@ -19,7 +18,6 @@ export default function DashboardGuard({ children }) {
     return redirect(`/login`, RedirectType.replace);
   }
   if (protectedRoutes.includes(path) && isLogged) {
-    console.log("m am logat");
     return <>{children}</>;
   }
 }

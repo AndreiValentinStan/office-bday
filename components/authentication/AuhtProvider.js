@@ -80,6 +80,10 @@ export default function AuthProvider({ children }) {
     Axios.setAccessToken(accesToken);
     localStorage.setItem("SESSION", "ESTABLISHED");
     dispatch({
+      type: "SETTLED",
+      payload: true,
+    });
+    dispatch({
       type: "LOGIN",
       payload: {
         email,
@@ -150,6 +154,7 @@ export default function AuthProvider({ children }) {
         });
       }
     }
+    console.log(localStorage.getItem("SESSION"));
     if (localStorage.getItem("SESSION") === "ESTABLISHED") setSession();
     else
       dispatch({
@@ -158,9 +163,20 @@ export default function AuthProvider({ children }) {
       });
   }, []);
 
+  /* useEffect(() => {
+
+  }, []) */
+
   return (
     <Auth.Provider
-      value={{ ...state, login, initialize, getUserInfo, updateUserData, logout }}
+      value={{
+        ...state,
+        login,
+        initialize,
+        getUserInfo,
+        updateUserData,
+        logout,
+      }}
     >
       {children}
     </Auth.Provider>

@@ -22,6 +22,7 @@ export async function POST(req) {
       email,
       JSON.stringify({
         otpCode,
+        date: Date.now(),
         confirmed: false,
       }),
       {
