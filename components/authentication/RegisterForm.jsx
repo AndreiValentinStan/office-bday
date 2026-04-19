@@ -10,6 +10,9 @@ import { emailSchema } from "../../validators/register";
 import toast from "react-hot-toast";
 import ApiManager from "../../utils/ApiInterface";
 import { useRouter } from "next/navigation";
+import { MdDone } from "react-icons/md";
+import { phoneSchema } from "../../validators/phone";
+import z from "zod";
 
 const formInputElements = [
   {
@@ -30,7 +33,7 @@ const formInputElements = [
   {
     label: "Phone Number",
     name: "phone",
-    type: "number",
+    type: "text",
     required: false,
   },
   {
@@ -67,7 +70,7 @@ const defaultUser = {
 };
 
 const waitUntilOtpIsGeneratedInMiliseconds = 2000;
-const waitBeforeResendOtpInSeconds = 5;
+const waitBeforeResendOtpInSeconds = 59;
 
 const { post, get } = ApiManager;
 
@@ -75,6 +78,7 @@ async function sendOtpEmail(
   email,
   requestCompletionSetter,
   requestStatusSetter,
+  visibilityHandler,
 ) {
   const abortController = new AbortController();
   const requestOptions = {
@@ -85,35 +89,47 @@ async function sendOtpEmail(
     },
     body: JSON.stringify({ email }),
   };
-  const request = new Request("/api/auth/generateOTP.js", requestOptions);
+  const request = new Request("/api/auth/generateOTP", requestOptions);
 
   try {
     const result = await fetch(request);
     if (result) {
-      const data = await result.json();
+      const { data, error, success } = (await result.json()) || {};
+      if (!success) throw Error(error.message);
+      visibilityHandler((_) => true);
+      toast.success("OTP code sent successfully to " + email);
       requestStatusSetter(true);
     }
   } catch (e) {
     console.log(e);
-    /* requestStatusSetter(false); */ requestStatusSetter(true);
+    toast.error(e.message);
+    visibilityHandler((_) => false);
+    requestStatusSetter(false); /* requestStatusSetter(true) */
   } finally {
     requestCompletionSetter(true);
   }
   return abortController;
 }
 
-async function verifyOtpCode(code, email, loadingController) {
-  loadingController(true);
+async function verifyOtpCode(
+  code,
+  email,
+  loadingStateHandler,
+  resultStateHandler,
+) {
+  loadingStateHandler(true);
   try {
     const resp = await post("/auth/verify-otp", {
       code,
       email,
     });
-    console.log(resp);
+    resultStateHandler("success");
+    toast.success("Verification complete");
   } catch (e) {
-    console.log(e);
+    resultStateHandler("failure");
+    toast.error(e?.message || "Error in verifing code");
   }
-  loadingController(false);
+  loadingStateHandler(false);
 }
 
 export default function RegisterForm() {
@@ -162,6 +178,7 @@ export default function RegisterForm() {
       if (!success) throw Error(error);
 
       router.replace(`/register-confirmation/${data?.userId}`);
+      return;
     } catch (error) {
       console.log(error);
       if (error.response) {
@@ -200,6 +217,14 @@ export default function RegisterForm() {
 
   // verify otp state
   const [isLoadingVerify, setIsLoadingVerify] = useState(false);
+  const [otpVrfResult, setOtpVrfResult] = useState("unset"); // unset | success | failure
+  const otpVrfResultRef = useRef("unset");
+  const otpSectionRef = useRef(null);
+
+  function setOtpVrfResultHandler(result) {
+    otpVrfResultRef.current = result;
+    setOtpVrfResult((_) => result);
+  }
 
   // verify otp when full code is provided
   useEffect(() => {
@@ -208,11 +233,23 @@ export default function RegisterForm() {
       setIsOptSectionActive(false);
 
       // set loading indicator
-      verifyOtpCode(otpBoxes.join(""), accountData.email, setIsLoadingVerify);
-
-      // clear loding indicator based on request status
+      verifyOtpCode(
+        otpBoxes.join(""),
+        accountData.email,
+        setIsLoadingVerify,
+        setOtpVrfResultHandler,
+      );
     }
   }, [otpBoxes]);
+
+  // semi-reset otp section on wrong code provided
+  useEffect(() => {
+    // replace loading indicator with error style
+    if (otpVrfResultRef.current === "failure") {
+      setOtpBoxes(Array());
+      setRequestSended(false);
+    }
+  }, [otpVrfResultRef.current]);
 
   function abortCurrentRequest() {
     if (abortController) abortController.abort();
@@ -228,10 +265,14 @@ export default function RegisterForm() {
     setRequestSended(false);
     setRequestStatus(false);
     setIsAvailableResendOTP(false);
+    setOtpVrfResultHandler("unset");
   }
 
   const timeoutIdRef = useRef(null);
   const [isEmailEditted, setIsEmailEditted] = useState(false);
+
+  // resend otp code
+  const [retryOtpTrigger, setRetryOtpTrigger] = useState(false);
 
   // check if otp is visible
   useEffect(() => {
@@ -248,16 +289,15 @@ export default function RegisterForm() {
         }
         setIsEmailEditted((prev) => true);
         timeoutIdRef.current = setTimeout(async () => {
-          setIsOtpVisible((prev) => true);
           const abortController = await sendOtpEmail(
             accountData.email,
             setRequestSended,
             setRequestStatus,
+            setIsOtpVisible,
           );
           setAbortController((prev) => abortController);
           setIsEmailEditted((prev) => false);
           _setSecondsBeforeResendOTP(waitBeforeResendOtpInSeconds);
-          toast.success("OTP code sent successfully to " + accountData.email);
         }, 2000);
       } else {
         if (timeoutIdRef.current) {
@@ -275,15 +315,25 @@ export default function RegisterForm() {
         clearTimeout(timeoutIdRef.current);
       }
     };
-  }, [accountData?.email]);
+  }, [accountData?.email, retryOtpTrigger]);
 
   function handleAccountDataChange({ target }) {
     if (!target) return;
     let { value, name } = target;
+    const intermediarPhoneValidation = z
+      .string()
+      .regex(/^\+?\d*$/, "Phone number must have [+]123123123 format");
     switch (name) {
       case "rePassword":
         name = "passwordConfirm";
         break;
+      case "phone":
+        try {
+          intermediarPhoneValidation.parse(value);
+        } catch (e) {
+          toast.error(e?.issues[0]?.message);
+          return;
+        }
       default:
         break;
     }
@@ -331,9 +381,6 @@ export default function RegisterForm() {
     };
   }, [requestStatus]);
 
-
-  console.log({accountData});
-console.log({isOtpVisible});
   return (
     <>
       <div className="w-full bg-white-100 flex flex-col items-center justify-center gap-y-4 px-2 md:px-0 min-h-0">
@@ -346,33 +393,37 @@ console.log({isOtpVisible});
         {/* register form */}
         <form
           onSubmit={registerHandler}
-          className={`flex min-h-0 overflow-y-auto py-5 md:py-10 max-w-[600px] flex-wrap justify-center items-center px-5 rounded-md gap-x-4 gap-y-10 relative transition-all`}
+          className={`flex min-h-0 overflow-y-auto py-5 md:py-10 max-w-[600px] flex-wrap justify-center items-center px-5 rounded-md gap-x-4 gap-y-10 relative`}
         >
           {isLoading && (
-            <div className="absolute w-full h-full bg-white/50 z-10 flex justify-center items-center">
+            <div className="absolute w-full h-full bg-white/90 z-10 flex justify-center items-center flex-col gap-y-5">
               <Spinner size="lg" className="fill-blue-600"></Spinner>
+              <span className="text-gray-500">Loading...</span>
             </div>
           )}
           <div className="border border-black/20 w-full flex flex-wrap gap-x-5 gap-y-5 p-4 rounded-md">
             {formInputElements.map((element, index) => {
               return (
-              <InputElement
-                label={element?.label || ""}
-                required={element.required}
-                inputType={element.type}
-                style={fieldStyle}
-                key={index}
-                value={accountData[element?.name] || ''}
-                name={element.name}
-                floatEffect={true}
-                parrentContentSetter={handleAccountDataChange}
-              />
-            )
+                <InputElement
+                  label={element?.label || ""}
+                  required={element.required}
+                  inputType={element.type}
+                  style={fieldStyle}
+                  key={index}
+                  value={accountData[element?.name] || ""}
+                  name={element.name}
+                  floatEffect={true}
+                  parrentContentSetter={handleAccountDataChange}
+                />
+              );
             })}
           </div>
+
+          {/* otp section */}
           <div
+            ref={otpSectionRef}
             aria-disabled={!isOtpVisible}
-            className={`group relative border w-full flex gap-y-4 flex-col items-center overflow-hidden transition-all duration-200 delay-200 bg-slate-100/80 opacity-0 rounded-md aria-disabled:cursor-not-allowed p-2 h-fit ${isOtpVisible ? "opacity-100" : "opacity-30 "}`}
+            className={`group relative border w-full flex gap-y-4 flex-col items-center overflow-hidden transition-all duration-75 delay-200 bg-slate-100/80 opacity-0 rounded-md aria-disabled:cursor-not-allowed p-2 h-fit ${isOtpVisible ? "opacity-100" : "opacity-30 "} ${otpVrfResultRef.current === "failure" ? "border-red-300 !bg-red-500/20 animate-shake" : ""}`}
             onKeyDown={({ key }) => {
               switch (true) {
                 case "0123456789".includes(key):
@@ -386,8 +437,20 @@ console.log({isOtpVisible});
                   return;
               }
             }}
+            onClick={(e) => {
+              e.preventDefault();
+              if (otpVrfResultRef.current === "failure") {
+                setRequestSended(true);
+                setOtpVrfResultHandler("unset");
+                setIsOptSectionActive(true);
+              }
+            }}
             onFocus={(e) => {
               e.preventDefault();
+              if (otpVrfResultRef.current === "failure") {
+                setOtpVrfResultHandler("unset");
+              }
+
               setIsOptSectionActive(true);
             }}
             onBlur={(e) => {
@@ -404,11 +467,28 @@ console.log({isOtpVisible});
                 </span>
               </div>
             )}
+
+            {/* success verification */}
+            {otpVrfResult === "success" && (
+              <div className="absolute left-0 top-0 w-full h-full flex items-center justify-center gap-y-4 flex-col bg-slate-50">
+                <div className=" border-green-600 border-2 rounded-3xl p-2">
+                  <MdDone className="text-2xl text-green-600" />
+                </div>
+                <span className="text-gray-700 italic font-thin">
+                  Code verified successfully
+                </span>
+              </div>
+            )}
+
             <span className="text-center text-xs">
               {emailSentSuccesfullyMessage}
             </span>
 
-            <div className="w-full flex justify-center gap-x-1 py-1">
+            {/* otp boxes */}
+            <div
+              className="w-full flex justify-center gap-x-1 py-1"
+              onClick={() => console.log("click CONTAINER")}
+            >
               {Array(6)
                 .fill(null)
                 .map((_, index) => {
@@ -422,18 +502,20 @@ console.log({isOtpVisible});
                       size={1}
                       autoComplete="off"
                       key={index}
-                      disabled={!requestSended}
+                      readOnly={!requestSended}
                       // autoFocus={index === 0 && otpBoxes.length === 0}
                       type="text"
                       className={`group-aria-disabled:cursor-not-allowed w-10  text-center caret-transparent rounded-md border-2 focus-within:border-gray-200 border-b-4 border-gray-200 ${isActive ? " !border-blue-600 border-b-blue-600" : ""}`}
                       id={index}
                       value={otpBoxes[index] ?? ""}
                       onChange={(e) => e.preventDefault()}
+                      onClick={(e) => console.log("click BOX")}
                     ></input>
                   );
                 })}
             </div>
 
+            {/* resend otp */}
             <div className="w-full flex flex-col items-center">
               {requestStatus ? (
                 <span className="group-aria-disabled:cursor-not-allowed text-center text-gray-400 text-sm">
@@ -442,6 +524,11 @@ console.log({isOtpVisible});
                 </span>
               ) : (
                 <button
+                  onClick={(e) => {
+                    setIsOtpVisible(false);
+                    e.preventDefault();
+                    setRetryOtpTrigger((t) => !t);
+                  }}
                   disabled={!isAvailableResendOTP || isEmailEditted}
                   className="group-aria-disabled:cursor-not-allowed text-blue-500 text-sm opacity-100 disabled:opacity-0"
                 >
@@ -450,12 +537,15 @@ console.log({isOtpVisible});
               )}
             </div>
           </div>
-          <SignInButton
-            text={"Register"}
-            style={
-              "w-1/2 max-w-[200px] bg-green-600 hover:bg-green-600/90 m-3 p-2 rounded-md text-white"
+
+          <button
+            disabled={!(otpVrfResult === "success")}
+            className={
+              "w-1/2 max-w-[200px] bg-green-600 hover:bg-green-600/90 m-3 p-2 rounded-md text-white disabled:bg-green-600/60"
             }
-          />
+          >
+            Register
+          </button>
           {/* toggle to login form */}
           <span className=" text-gray-700 text-sm w-full flex justify-center">
             Already have an account?&nbsp;

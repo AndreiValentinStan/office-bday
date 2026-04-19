@@ -1,9 +1,13 @@
-
+'use client'
+import DashboardGuard from "@/guards/DashboardGuard";
+import { useAuth } from "@/hooks/auth";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div className="bg-green-300 w-full h-full">
-      <h1>welcome</h1>
-    </div>
-  );
+  /* const {isSetteled, isLogged} = useAuth();
+  if(isSetteled && isLogged){
+    return redirect('employees', 'replace')
+  }
+  return redirect('login', 'replace') */
+  return null;
 }

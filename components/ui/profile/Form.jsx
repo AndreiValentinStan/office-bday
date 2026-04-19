@@ -22,7 +22,7 @@ const customStyle = {
 const validator = z.object({
   firstName: firstNameSchema.optional(),
   lastName: lastNameSchema.optional(),
-  phone: phoneSchema,
+  phone: phoneSchema.optional(),
   actualPassword: passwordSchema.optional(),
   newPassword: passwordSchema.optional(),
 });

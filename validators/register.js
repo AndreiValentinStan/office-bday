@@ -1,19 +1,15 @@
 import z from "zod";
 import { passwordSchema } from "./passwordSchema";
+import { phoneSchema } from "./phone";
 
-export const emailSchema = z.email();
+
+export const emailSchema = z.email('Please provide an valid email');
 
 export const registerDataSchema = z
   .object({
     firstName: z.string(),
     lastName: z.string(),
-    phone: z
-      .string()
-      .regex(
-        /^(?:\+40|0)(?:[\s-]?\d){9}$/,
-        "Phone number must be 10 digits long (can include country prefix)"
-      )
-      .optional(),
+    phone: z.preprocess(arg => arg === '' ? undefined : arg, phoneSchema.optional()),
     email: emailSchema,
     password: passwordSchema,
     passwordConfirm: passwordSchema,

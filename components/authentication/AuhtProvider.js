@@ -163,9 +163,6 @@ export default function AuthProvider({ children }) {
       });
   }, []);
 
-  /* useEffect(() => {
-
-  }, []) */
 
   return (
     <Auth.Provider

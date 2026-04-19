@@ -3,7 +3,7 @@
 import { redirect, RedirectType, usePathname } from "next/navigation";
 import { useAuth } from "../hooks/auth";
 
-const protectedRoutes = ["/employees", "/profile", "/accounts"];
+const protectedRoutes = ["/employees", "/profile", "/accounts", "/"];
 
 export default function DashboardGuard({ children }) {
   const path = usePathname();

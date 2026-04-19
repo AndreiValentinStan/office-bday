@@ -52,7 +52,7 @@ export default class Axios {
                 return { retry: true };
               }
             }
-            return null;
+            return response;
           } catch (err) {
             console.log({ axiosErr: err });
             Axios.activeRequest = false;

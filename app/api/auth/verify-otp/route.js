@@ -6,7 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import z from "zod";
 import { emailSchema } from "../../../../validators/email";
 
-const tenMinutes = 600;
+const tenMinutes = 60;
 
 export async function POST(req) {
   try {
@@ -14,30 +14,37 @@ export async function POST(req) {
     const { code, email } = z
       .object({ email: emailSchema, code: otpCodeSchema })
       .parse(body);
-    
+
     const resp = await redis.get(email);
-    
+
+    // check if code exist for provided email
     if (!resp)
       throw new CustomError(
-        "Invalid code",
+        "Code does not exist for provided email",
         StatusCodes.FORBIDDEN,
-        "Code expired or not generated for requested email",
+        "Invalid OTP code",
       );
 
     const formatedValue = JSON.parse(resp);
-    
+
+    // check if provided code is correct
     if (code !== formatedValue.otpCode)
       throw new CustomError(
-        "Verification failed",
-        StatusCodes.UNAUTHORIZED,
         "Submitted code is wrong",
+        StatusCodes.UNAUTHORIZED,
+        "Invalid OTP code",
       );
-    // set email entry with confirmed flag set to true and reset ttl to 10 minutes
-    await redis.set(
-      email,
-      JSON.stringify({ ...formatedValue, confirmed: true }),
-      /* { expiration: { type: "EX", value: tenMinutes } }, */
-    );
+
+    // check if provided code is not expired
+    if (Math.floor(Date.now() / 1000) > formatedValue.date + tenMinutes)
+      throw new CustomError(
+        "Submitted code is expired",
+        StatusCodes.UNAUTHORIZED,
+        "Invalid OTP code",
+      );
+
+    // validate code and update entry in DB
+    redis.set(email, JSON.stringify({...formatedValue, confirmed: true}))
 
     return Response.json(
       {

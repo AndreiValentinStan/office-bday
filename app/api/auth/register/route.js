@@ -30,6 +30,17 @@ export async function POST(req) {
         StatusCodes.FORBIDDEN,
       );
 
+    // check if account is already registred
+    const userExist = await User.findOne({
+      where: { email },
+    });
+
+    if (userExist)
+      throw new CustomError(
+        "An acount with provided email already exists",
+        StatusCodes.FORBIDDEN,
+      );
+
     // create entry in DB
     const user = await User.create({
       first_name: firstName,
