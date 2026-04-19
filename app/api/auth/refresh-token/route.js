@@ -105,6 +105,28 @@ export async function POST(request) {
         "Session expired. Please login",
         StatusCodes.FORBIDDEN,
       );
+    
+    // check if account is ACTIVE
+    const user = await User.findByPk(session.user_id, {
+      attributes: [
+        "email",
+        [
+          sequelize.fn(
+            "CONCAT_WS",
+            " ",
+            Sequelize.col("first_name"),
+            Sequelize.col("last_name"),
+          ),
+          "full_name",
+        ],
+        ['first_name', 'firstName'],
+        ['last_name', 'lastName'],
+        'phone',
+        'status'
+      ],
+    });
+    if(status !== 'ACTIVE')
+      throw new CustomError(`Your account is ${status}`, StatusCodes.FORBIDDEN, 'Can`t obtain new refresh token');
 
     const isValidTime = moment(session.createdAt).add(1, 'month') >= moment();
     // session expired
@@ -220,7 +242,7 @@ export async function POST(request) {
       );
     });
 
-    // 8) get user data to be provided to app
+    /* // 8) get user data to be provided to app
     const user = await User.findByPk(session.user_id, {
       attributes: [
         "email",
@@ -237,7 +259,7 @@ export async function POST(request) {
         ['last_name', 'lastName'],
         'phone'
       ],
-    });
+    }); */
 
     return Response.json(
       {

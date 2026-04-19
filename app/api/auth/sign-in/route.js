@@ -14,6 +14,7 @@ import moment from "moment";
 import jwt from "jsonwebtoken";
 import { BaseError, EmptyResultError } from "sequelize";
 import { loginDataSchema } from "../../../../validators/login";
+import errorHandler from "../../../../utils/errorHandler";
 
 export async function POST(request) {
   try {
@@ -31,6 +32,7 @@ export async function POST(request) {
         ["first_name", "firstName"],
         ["last_name", "lastName"],
         "phone",
+        "status",
       ],
       where: {
         email: email,
@@ -46,7 +48,7 @@ export async function POST(request) {
       );
 
     // destructure values from model instance
-    const { dbPasswdHash, userId, firstName, lastName, phone } =
+    const { dbPasswdHash, userId, firstName, lastName, phone, status } =
       JSON.parse(JSON.stringify(user.pop())) || {};
 
     // check if required values from user exists
@@ -60,6 +62,22 @@ export async function POST(request) {
     const compareStatus = await compare(password, dbPasswdHash);
     if (!compareStatus)
       throw new CustomError("Bad credentials", StatusCodes.UNAUTHORIZED);
+
+    // check if account is active
+    if (status !== "ACTIVE") {
+      let errorMessage = "";
+      switch (status) {
+        case "PENDING":
+          errorMessage = "Your account is not activated";
+          break;
+        case "REVOKED":
+          errorMessage = "Your account is not blocked";
+          break;
+        default:
+          errorMessage = "Your account have some issues";
+      }
+      throw new CustomError(errorMessage, StatusCodes.FORBIDDEN);
+    }
 
     // create session and store it to db
     const session = await Sessions.create(
@@ -141,19 +159,6 @@ export async function POST(request) {
       },
     );
   } catch (error) {
-    console.log("some error ocured: ", error);
-    if (error instanceof BaseError) {
-      if (error instanceof EmptyResultError)
-        error.message = "Cant find specified user";
-    }
-    return Response.json(
-      {
-        data: null,
-        message: error.message,
-      },
-      {
-        status: error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-      },
-    );
+    return errorHandler(error);
   }
 }

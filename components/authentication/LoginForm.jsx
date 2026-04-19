@@ -19,36 +19,36 @@ export default function LoginForm() {
     let [email, password] = e.target.form || [];
     email = email.value;
     password = password.value;
-    /* if (!email || !password) {
+    if (!email || !password) {
       setSignInError("Please provide email and password");
       return;
-    } */
+    }
     try {
       const response = await post(
         "/auth/sign-in",
-        { email: "test@email.com", password: "Alex&bogdan627843" },
+        {
+          email,
+          password,
+        },
         {
           headers: { "Content-Type": "application/json" },
         },
       );
-      /* const response = await axiosInstance.post(
-        "/auth/sign-in",
-        {
-          email: "test@email.com",
-          password: "AnaAre23Mere!",
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-        },
-      ); */
       console.log(response);
-      
-      login(response.accessToken, response.email, "admin", response.firstName, response.lastName, response.phone);
+
+      login(
+        response.accessToken,
+        response.email,
+        "admin",
+        response.firstName,
+        response.lastName,
+        response.phone,
+      );
       e.target.form.reset();
     } catch (err) {
       console.log(err);
       setSignInError(
-        err?.response?.data?.message || "Unexpected error from the server",
+        err?.message || "Unexpected error from the server",
       );
     }
   };

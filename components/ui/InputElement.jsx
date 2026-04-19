@@ -20,7 +20,7 @@ export default function InputElement({
   disabled,
   parrentContentSetter
 }) {
-
+console.log({value});
   const [focusStatus, setFocusStatus] = useState(!!value);
   let labelStyleSelector = value || focusStatus ? "FLOAT" : "DEFAULT";
 
@@ -66,8 +66,8 @@ export default function InputElement({
           type={inputType}
           name={name}
           required={required}
-          value={value || ''}
-          onChange={handleTypeing}
+          {...(value !== undefined ? {value, onChange: handleTypeing} : {})}
+          //onChange={handleTypeing}
           onFocus={htmlInputFocusHandler}
           onBlur={htmlInputBlurHandler}
           autoComplete="off"
