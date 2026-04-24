@@ -1,0 +1,22 @@
+import ProfileForm from "../../../components/ui/profile/Form";
+
+const cardsStyle = "bg-gray-50 p-3 rounded-sm flex flex-col w-full";
+
+export default function Profile() {
+  return (
+    <div className="w-full flex flex-col items-center justify-center max-w-[1200px] p-5 gap-y-5 overflow-hidden">
+      {/* title */}
+      <section className={cardsStyle}>
+        <span className="text-2xl">Edit profile</span>
+        <span className="italic text-xs">
+          You can edit your personal information or your password
+        </span>
+      </section>
+
+      {/* personal information form */}
+      <section className={`${cardsStyle} `}>
+        <ProfileForm />
+      </section>
+    </div>
+  );
+}

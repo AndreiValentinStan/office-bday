@@ -1,7 +1,7 @@
 import { sequelize } from "../db/connectionDB";
-import { genSalt, hash } from "bcryptjs";
+import { compare, genSalt, hash } from "bcryptjs";
 
-import { STRING, UUIDV4, UUID } from "sequelize";
+import { STRING, UUIDV4, UUID, ENUM } from "sequelize";
 
 const User = sequelize.define("Users", {
   id: {
@@ -24,6 +24,10 @@ const User = sequelize.define("Users", {
       len: [2, 50],
     },
   },
+  phone: {
+    type: STRING,
+    allowNull: true,
+  },
   email: {
     type: STRING,
     allowNull: false,
@@ -35,17 +39,30 @@ const User = sequelize.define("Users", {
       },
     },
   },
+  status: {
+    type: ENUM,
+    values: ["ACTIVE", "PENDING", "REVOKED"],
+    defaultValue: "PENDING",
+  },
   password: {
     type: STRING,
     allowNull: false,
   },
 });
 
-
 User.beforeCreate(async (user) => {
   const salt = await genSalt();
   const hashedPasswd = await hash(user.password, salt);
   user.password = hashedPasswd;
+});
+
+User.beforeBulkUpdate(async (user) => {
+  console.log({user});
+  if (user?.attributes?.password) {
+    const salt = await genSalt();
+    const hashedPassword = await hash(user.attributes.password, salt);
+    user.attributes.password = hashedPassword;
+  }
 });
 
 export default User;

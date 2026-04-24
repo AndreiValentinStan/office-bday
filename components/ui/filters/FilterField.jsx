@@ -15,10 +15,13 @@ export default function FilterField({
     value: "-top-2 text-xs px-1 rounded-md py-0 text-blue-500 left-1",
   };
   const [selectedStyle, setSelectedStyle] = useState(defaultStyle);
+
+  // fields values
   useEffect(() => {
     if (!fieldValue) setSelectedStyle(defaultStyle);
     else setSelectedStyle(typedStyle);
   }, [fieldValue]);
+
   return (
     <div className="flex gap-x-1 items-center relative">
       <label
@@ -29,9 +32,9 @@ export default function FilterField({
       <input
         type={inputType}
         className="py-1 pl-2 rounded-sm border border-blue-400 focus:outline-blue-500 focus:outline focus:border-transparent focus:outline-2 text-gray-600"
-        onChange={(e) => {
+        onChange={/* (e) => {
           setFieldValue(e, searchParam);
-        }}
+        } */({target}) => setFieldValue(searchParam, target.value)}
         onFocus={() => {
           selectedStyle.name === "defaultStyle" || fieldValue
             ? setSelectedStyle(typedStyle)

@@ -9,6 +9,7 @@ import {
   TableHead,
   TableHeadCell,
   TableRow,
+  Dropdown,
 } from "flowbite-react";
 
 // ui components
@@ -17,6 +18,7 @@ import CellOptionsButton from "./CellOptionsButton";
 
 // react imports
 import { useState, useEffect } from "react";
+import moment from "moment";
 
 const tableStyle = createTheme({
   root: {
@@ -51,9 +53,12 @@ export default function EmployeesTable({
   children,
   clickOutside,
   setClickOutside,
+  visibleColumns: tableHeaders,
+  currentPage,
+  resultsPerPage,
 }) {
   const titleStyle = "font-semibold text-md uppercase";
-  const tableHeaders = ["First Name", "Last Name", "Birth Date"];
+  //const tableHeaders = ["First Name", "Last Name", "Birth Date"];
   const [displayDropdown, setDisplayDropdown] = useState(null);
   useEffect(() => {
     if (clickOutside) {
@@ -68,8 +73,8 @@ export default function EmployeesTable({
         <FetchEmployeeLoadingScreen />
       ) : (
         <div
+          className="overflow-x-auto overflow-y-clip scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400 scrollbar-corner-gray-200"
           onClick={(e) => {
-            console.log({ displayDropdown, clickVal: e.target.value });
             if (e.target.id === "cell-options-button") {
               if (parseInt(e.target.value, 10) === displayDropdown)
                 return setDisplayDropdown(null);
@@ -83,9 +88,9 @@ export default function EmployeesTable({
             <TableHead key={"table_header"}>
               <TableRow key={"header_row"}>
                 <TableHeadCell key={"id"}></TableHeadCell>
-                {tableHeaders.map((tableHeader, index) => {
+                {tableHeaders.map(({ name, display }, index) => {
                   return (
-                    <TableHeadCell key={index}>{tableHeader}</TableHeadCell>
+                    display && <TableHeadCell key={index}>{name}</TableHeadCell>
                   );
                 })}
                 <TableHeadCell key="action"></TableHeadCell>
@@ -95,20 +100,31 @@ export default function EmployeesTable({
               {employees?.employees?.map((employee, index) => {
                 return (
                   <TableRow key={employee.id}>
-                    <TableCell /* key={index + 1 * 100} */ className="max-w-2">
-                      {employee.id}
+                    <TableCell className="max-w-2">
+                      {currentPage * resultsPerPage + index + 1}
                     </TableCell>
-                    <TableCell /* key={index + 2 * 101} */>
-                      {employee.first_name}
-                    </TableCell>
-                    <TableCell /* key={index + 3 * 102} */>
-                      {employee.last_name}
-                    </TableCell>
-                    <TableCell /* key={index + 4 * 103} */>
-                      {employee.birth_date}
-                    </TableCell>
-                    <TableCell /* key={index + 5 * 104} */>
-                      <CellOptionsButton id={index} display={displayDropdown} />
+                    {tableHeaders.map((column, index) => {
+                      if (!column.display) return null;
+                      if (column.alias === "date_of_birth")
+                        return (
+                          <TableCell key={index}>
+                            {moment(employee.date_of_birth)
+                              .format("DD MMMM YYYY")
+                              .toString()}
+                          </TableCell>
+                        );
+                      return (
+                        <TableCell key={index}>
+                          {employee[column.alias]}
+                        </TableCell>
+                      );
+                    })}
+                    <TableCell>
+                      <CellOptionsButton
+                        id={index}
+                        display={displayDropdown}
+                        employeeId={employee.id}
+                      />
                     </TableCell>
                   </TableRow>
                 );

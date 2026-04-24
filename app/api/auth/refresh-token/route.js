@@ -1,10 +1,14 @@
 import { StatusCodes } from "http-status-codes";
 import { CustomError } from "../../../../utils/CustomError";
+import errorHandler from "../../../../utils/errorHandler";
 import { createHash, createHmac, randomBytes } from "node:crypto";
 import RefreshTokens from "../../../../models/refreshTokens";
 import Sessions from "../../../../models/session";
 import moment from "moment";
 import jwt from "jsonwebtoken";
+import User from "../../../../models/user";
+import { sequelize } from "../../../../db/connectionDB";
+import { Sequelize } from "sequelize";
 
 export async function POST(request) {
   try {
@@ -13,7 +17,7 @@ export async function POST(request) {
     if (!value)
       throw new CustomError(
         "Couldn`t fetch data from refresh token cookie",
-        StatusCodes.UNAUTHORIZED
+        StatusCodes.UNAUTHORIZED,
       );
 
     // parse refreshToken cookie value and signed value
@@ -21,7 +25,7 @@ export async function POST(request) {
     if (!hash || !token)
       throw new CustomError(
         "Can`t decode refresh token",
-        StatusCodes.BAD_REQUEST
+        StatusCodes.BAD_REQUEST,
       );
 
     // verify authenticity of refresh token: gen hash from token and compare with hash
@@ -33,7 +37,7 @@ export async function POST(request) {
     if (tokenHash !== hash)
       throw new CustomError(
         "Couldn`t authenticate refresh token",
-        StatusCodes.UNAUTHORIZED
+        StatusCodes.UNAUTHORIZED,
       );
 
     // search in DB for hashed refresh token
@@ -52,25 +56,46 @@ export async function POST(request) {
     if (result?.length !== 1)
       throw new CustomError(
         "More than one refresh token with same value exists in DB",
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
 
     // check if refresh token is revoked
     // mark session as revoked, reason: trying to resend an already revoked refresh token => ALARM
     const refreshToken = result[0];
-    console.log({ refreshToken });
-    if (refreshToken.getDataValue("revocation_time") !== null)
+
+    if (refreshToken.getDataValue("revocation_time") !== null) {
+      // set session as revoked
+      Sessions.update(
+        {
+          changing_status_time: moment().toISOString(),
+          changing_status_reason:
+            "try to obtain a new access token using an expired refresh token",
+          status: "REVOKED",
+        },
+        {
+          where: {
+            id: result[0].getDataValue("Session").id,
+          },
+        },
+      );
       throw new CustomError(
         "Refresh token is already revoked",
-        StatusCodes.FORBIDDEN
+        StatusCodes.FORBIDDEN,
       );
+    }
+
+    // check if refresh token is still valid
+    // valid time 2h, 7dyas etc
+    if (refreshToken.getDataValue("updatedAt")) {
+      // TO BE creted
+    }
 
     // check if session is still valid
     const session = result[0].getDataValue("Session");
     if (!session)
       throw new CustomError(
         "Can`t find a session associated with current refresh token",
-        StatusCodes.INTERNAL_SERVER_ERROR
+        StatusCodes.INTERNAL_SERVER_ERROR,
       );
 
     const isValidStatus = session.status;
@@ -78,10 +103,32 @@ export async function POST(request) {
       // that means session is either expired or is revoked
       throw new CustomError(
         "Session expired. Please login",
-        StatusCodes.FORBIDDEN
+        StatusCodes.FORBIDDEN,
       );
+    
+    // check if account is ACTIVE
+    const user = await User.findByPk(session.user_id, {
+      attributes: [
+        "email",
+        [
+          sequelize.fn(
+            "CONCAT_WS",
+            " ",
+            Sequelize.col("first_name"),
+            Sequelize.col("last_name"),
+          ),
+          "full_name",
+        ],
+        ['first_name', 'firstName'],
+        ['last_name', 'lastName'],
+        'phone',
+        'status'
+      ],
+    });
+    if(status !== 'ACTIVE')
+      throw new CustomError(`Your account is ${status}`, StatusCodes.FORBIDDEN, 'Can`t obtain new refresh token');
 
-    const isValidTime = moment(session.createdAt).add(1, "M") >= moment();
+    const isValidTime = moment(session.createdAt).add(1, 'month') >= moment();
     // session expired
     if (!isValidTime) {
       // mark session as expired
@@ -95,7 +142,7 @@ export async function POST(request) {
           where: {
             id: session.id,
           },
-        }
+        },
       );
 
       // mark refresh token as revoked
@@ -107,7 +154,13 @@ export async function POST(request) {
           where: {
             id: refreshToken.getDataValue("id"),
           },
-        }
+        },
+      );
+
+      throw new CustomError(
+        "Session expired",
+        StatusCodes.FORBIDDEN,
+        "current session expired; login required",
       );
     }
 
@@ -121,7 +174,7 @@ export async function POST(request) {
         where: {
           id: refreshToken.getDataValue("id"),
         },
-      }
+      },
     );
 
     // 2) generate new refresh token
@@ -146,13 +199,13 @@ export async function POST(request) {
         where: {
           id: session.id,
         },
-      }
+      },
     );
 
     // 5) create hmac of refreshToken
     const hmacRefreshTokenCreator = createHmac(
       "sha512",
-      process.env.HMAC_SECRET
+      process.env.HMAC_SECRET,
     );
     hmacRefreshTokenCreator.update(newRefreshToken);
     const hmacRefreshToken =
@@ -160,13 +213,15 @@ export async function POST(request) {
 
     // 6) set refreshToken cookie
     const afterTwoHours =
-      moment().add(7, "d").format("ddd, DD MMM YYYY HH:mm:ss").toString() +
-      " GMT";
+      moment()
+        .add(12, "seconds")
+        .format("ddd, DD MMM YYYY HH:mm:ss")
+        .toString() + " GMT";
     const cookieHeader = new Headers();
     cookieHeader.set(
       "Set-Cookie",
       `
-       refreshToken=${hmacRefreshToken};path=/;httpOnly;SameSite=Strict;expires=${afterTwoHours}`
+       refreshToken=${hmacRefreshToken};path=/api/auth/;httpOnly;SameSite=Strict;expires=${afterTwoHours}`,
     );
 
     // 7) generate new accessToken
@@ -178,36 +233,46 @@ export async function POST(request) {
         process.env.JWT_SECRET,
         {
           subject: session.user_id,
+          expiresIn: "5m",
         },
         (err, token) => {
           if (err) return reject("Couldn`t generate access token!");
           return resolve(token);
-        }
+        },
       );
     });
 
-    console.log(accessToken);
+    /* // 8) get user data to be provided to app
+    const user = await User.findByPk(session.user_id, {
+      attributes: [
+        "email",
+        [
+          sequelize.fn(
+            "CONCAT_WS",
+            " ",
+            Sequelize.col("first_name"),
+            Sequelize.col("last_name"),
+          ),
+          "full_name",
+        ],
+        ['first_name', 'firstName'],
+        ['last_name', 'lastName'],
+        'phone'
+      ],
+    }); */
 
     return Response.json(
       {
         accessToken,
+        user,
       },
       {
         status: StatusCodes.OK,
         headers: cookieHeader,
-      }
+      },
     );
   } catch (err) {
     console.log("Ups, some error occured: \n", err);
-    return Response.json(
-      {
-        data: null,
-        message: err?.message,
-        reason: err?.reason,
-      },
-      {
-        status: err?.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-      }
-    );
+    return errorHandler(err);
   }
 }

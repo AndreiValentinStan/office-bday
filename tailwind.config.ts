@@ -1,32 +1,43 @@
 import type { Config } from "tailwindcss";
-import flowbiteReact from "flowbite-react/plugin/tailwindcss";
 
  export default {
   content: [ 
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-<<<<<<< HEAD
     ".flowbite-react\\class-list.json"
-  ],
-=======
    ],
    darkMode: 'media',
->>>>>>> af93fd070ad0f27daf24da9886db9db7ee391b66
   theme: {
     fontFamily: {
       customFont: ["-apple-system","BlinkMacSystemFont","Segoe UI","Noto Sans","Helvetica","Arial","sans-serif","Apple Color Emoji","Segoe UI Emoji"]
     },
     extend: {
+      keyframes: {
+        shake: {
+          "10%, 90%": {
+            transform: "translate3d(-1px, 0, 0)"
+          },
+          "20%, 80%": {
+            transform: "translate3d(2px, 0, 0)"
+          },
+          "30%, 50%, 70%": {
+            transform: "translate3d(-4px, 0, 0)"
+          },
+          "40%, 60%": {
+            transform: "translate3d(4px, 0, 0)"
+          }
+        }
+      }, 
+      animation: {
+        "shake": "shake 0.5s linear both"
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
     },
   },
-<<<<<<< HEAD
-  plugins: [flowbiteReact],
-=======
-  plugins: [],
->>>>>>> af93fd070ad0f27daf24da9886db9db7ee391b66
+  
+  plugins: [require('flowbite/plugin'), require("tailwind-scrollbar")],
 } satisfies Config;
