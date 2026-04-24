@@ -21,6 +21,9 @@ async function handler(req) {
     pagination.limit = !count ? 20 : count;
     pagination.offset = !page ? 0 : (page - 1) * count;
 
+    // default ordering
+    const order = ['last_name', 'ASC']
+
     const { count: employeesCount, rows } = await Employee.findAndCountAll({
       ...pagination,
       where: {
@@ -35,6 +38,7 @@ async function handler(req) {
           },
         }),
       },
+      order: [order]
     });
 
     let employeesAges = [];

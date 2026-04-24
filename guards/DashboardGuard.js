@@ -8,6 +8,7 @@ const protectedRoutes = ["/employees", "/profile", "/accounts", "/"];
 export default function DashboardGuard({ children }) {
   const path = usePathname();
   const { isLogged, isSetteled } = useAuth();
+  console.log({isLogged, isSetteled});
  
   if (!isSetteled) return;
 

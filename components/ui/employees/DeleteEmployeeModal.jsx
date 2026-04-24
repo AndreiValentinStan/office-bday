@@ -18,18 +18,7 @@ export default function DeleteEmployeeModal({
     try {
       setRequestState("fetching");
       await ApiInterface.delete(`/employee/delete-employee/${data.id}`);
-      /* const response = await fetch("/api/employee/delete-employee", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "applicaiton/json",
-        },
-        body: JSON.stringify({
-          id: data.id,
-        }),
-      }); */
-      /* const { success, message } = (await response.json()) || {};
-      if (!success) throw Error("Delete error"); */
-      /* toast.success(message || "Success!"); */
+      toast.success('User was deleted')
     } catch (err) {
       console.log(err);
       toast.error(err.messsage);

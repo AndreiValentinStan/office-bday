@@ -16,7 +16,7 @@ const Sessions = sequelize.define("Sessions", {
   },
   status: {
     type: ENUM,
-    values: ['active', 'expired', 'revoked'],
+    values: ['active', 'expired', 'revoked', 'closed'],
     defaultValue: 'active',
     allowNull: false
   },

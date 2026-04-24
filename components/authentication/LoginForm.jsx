@@ -43,6 +43,7 @@ export default function LoginForm() {
         response.firstName,
         response.lastName,
         response.phone,
+        response.session
       );
       e.target.form.reset();
     } catch (err) {

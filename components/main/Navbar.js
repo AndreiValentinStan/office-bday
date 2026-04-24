@@ -68,7 +68,7 @@ function renderIcon(location){
 }
 
 export default function Navbar({ children }) {
-  const { firstName } = useAuth();
+  const { firstName, logout, sessionId } = useAuth();
   const activePage = useSelectedLayoutSegment();
 
   return (
@@ -112,7 +112,7 @@ export default function Navbar({ children }) {
               Settings
             </DropdownItem>
 
-            <DropdownItem>
+            <DropdownItem onClick={() => logout(sessionId)}>
               <span>Logout</span>
             </DropdownItem>
           </Dropdown>

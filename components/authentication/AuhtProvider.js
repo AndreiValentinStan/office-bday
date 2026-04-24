@@ -11,6 +11,7 @@ const initialAuthState = {
   lastName: null,
   phone: null,
   isSetteled: false,
+  sessionId: "",
 };
 
 export const Auth = createContext(initialAuthState);
@@ -60,23 +61,21 @@ export default function AuthProvider({ children }) {
 
   function initialize() {
     Axios.initialize();
-    /* Axios.logout = () => {
-      dispatch({
-        type: 'LOGOUT',
-        payload: initialAuthState
-      })
-    } */
   }
 
-  function logout() {
-    localStorage.setItem("SESSION", "DROPPED");
-    dispatch({
-      type: "LOGOUT",
-      payload: initialAuthState,
-    });
+  function logout(sessionId) {
+    Axios.logout(sessionId);
   }
 
-  function login(accesToken, email, role, firstName, lastName, phone) {
+  function login(
+    accesToken,
+    email,
+    role,
+    firstName,
+    lastName,
+    phone,
+    sessionId,
+  ) {
     Axios.setAccessToken(accesToken);
     localStorage.setItem("SESSION", "ESTABLISHED");
     dispatch({
@@ -91,6 +90,7 @@ export default function AuthProvider({ children }) {
         firstName,
         lastName,
         phone,
+        sessionId,
       },
     });
   }
@@ -119,12 +119,19 @@ export default function AuthProvider({ children }) {
 
   useEffect(() => {
     // register axios logout -> used on axios interceptor
-    Axios.logout = () => {
-      console.log("ar trebui sa logout");
+    Axios.logout = (sessionId) => {
+      console.log("SHOULD LOGOUT");
+      Axios.axiosInstance.post("/auth/logout", {
+        sessionId: sessionId,
+      });
       localStorage.setItem("SESSION", "DROPPED");
       dispatch({
         type: "LOGOUT",
         payload: initialAuthState,
+      });
+      dispatch({
+        type: "SETTLED",
+        payload: true,
       });
     };
     // try to get new access token
@@ -154,7 +161,7 @@ export default function AuthProvider({ children }) {
         });
       }
     }
-    console.log(localStorage.getItem("SESSION"));
+
     if (localStorage.getItem("SESSION") === "ESTABLISHED") setSession();
     else
       dispatch({
@@ -162,7 +169,6 @@ export default function AuthProvider({ children }) {
         payload: true,
       });
   }, []);
-
 
   return (
     <Auth.Provider

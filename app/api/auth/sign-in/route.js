@@ -114,7 +114,7 @@ export async function POST(request) {
       moment()
         .add(100, "seconds")
         .format("ddd, DD MMM YYYY HH:mm:ss")
-        .toString() + " GMT";
+        .toString() /* + " GMT" */;
     const cookieHeader = new Headers();
     cookieHeader.set(
       "Set-Cookie",
@@ -151,6 +151,7 @@ export async function POST(request) {
           firstName,
           lastName,
           phone,
+          session: session.getDataValue('id')
         },
       },
       {

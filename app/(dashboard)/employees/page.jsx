@@ -50,7 +50,7 @@ export default function Employees() {
   }
   function resetFilterHandler(e) {
     e.preventDefault();
-    filterStateRef.current = {page: 1, count: 20}
+    filterStateRef.current = {page: 1, count: 20, order: 'asc', groupBy: 'lastName'}
     setPageNumber(1);
     setPageSize(20);
     setTriggerFilter((t) => !t);
@@ -128,7 +128,7 @@ export default function Employees() {
   // trigger fetch employees
   useEffect(() => {
     fetchEmployees();
-  }, [triggerFilter, pageSize, pageNumber]);
+  }, [triggerFilter, pageSize, pageNumber, changesTracker]);
 
   // visible columns
   const displayColumns = [
@@ -218,7 +218,7 @@ export default function Employees() {
               currentPage={pageNumber - 1}
               resultsPerPage={pageSize}
             >
-              <PageCounter setPageSize={pageSizeHandler} pageSize={pageSize} />
+              <PageCounter setPageSize={pageSizeHandler} pageSize={pageSize} employeesCount={employees?.count || ''}/>
             </EmployeesTable>
           </OutsideWrapper>
         </section>

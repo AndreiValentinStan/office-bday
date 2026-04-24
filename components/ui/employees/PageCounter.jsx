@@ -1,10 +1,10 @@
 "use client";
 
-export default function PageCounter({ setPageSize, pageSize }) {
+export default function PageCounter({ setPageSize, pageSize, employeesCount }) {
   return (
     <>
       <div className="flex justify-between items-center">
-        <span className={"font-semibold text-md uppercase"}>Employees</span>
+        <span className={"font-semibold text-md uppercase"}>Employees {employeesCount}</span>
         <div className="text-sm flex gap-x-3 items-center text-gray-500">
           <span>Rows per page</span>
           <select

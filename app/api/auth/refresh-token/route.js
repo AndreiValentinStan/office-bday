@@ -125,7 +125,7 @@ export async function POST(request) {
         'status'
       ],
     });
-    if(status !== 'ACTIVE')
+    if(!user?.status || user?.status !== 'ACTIVE')
       throw new CustomError(`Your account is ${status}`, StatusCodes.FORBIDDEN, 'Can`t obtain new refresh token');
 
     const isValidTime = moment(session.createdAt).add(1, 'month') >= moment();
