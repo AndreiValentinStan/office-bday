@@ -21,7 +21,7 @@ const RefreshTokens = sequelize.define("RefreshTokens", {
   revocation_time: {
     type: DATE,
   },
-});
+}, {tableName: 'refresh_tokens', freezeTableName: true});
 
 Sessions.hasMany(RefreshTokens, {
   foreignKey: "session_id",

@@ -1,5 +1,8 @@
+import { env } from "@/utils/envManager";
 import moment from "moment";
 import z from "zod";
+
+const { NEXT_PUBLIC_MAXIMUM_AGE, NEXT_PUBLIC_MINIMUM_AGE } = process.env;
 
 export const employeeDataSchema = z.object({
   firstName: z
@@ -27,8 +30,8 @@ export const employeeDataSchema = z.object({
     .transform((birthDate) => moment.utc(birthDate, "DD-MM-YYYY").toDate())
     .refine(
       (formatedDate) => {
-        const maxAge = process.env.NEXT_PUBLIC_MAXIMUM_AGE;
-        const minAge = process.env.NEXT_PUBLIC_MINIMUM_AGE;
+        const maxAge = NEXT_PUBLIC_MAXIMUM_AGE;
+        const minAge = NEXT_PUBLIC_MINIMUM_AGE;
         const minimumOffset = moment().subtract(maxAge, "years");
         const maximumOffset = moment().subtract(minAge, "years");
         if (
@@ -39,7 +42,7 @@ export const employeeDataSchema = z.object({
         return true;
       },
       {
-        message: `Birth date is out of interval; It must be greater than ${process.env.NEXT_PUBLIC_MINIMUM_AGE} and lower than ${process.env.NEXT_PUBLIC_MAXIMUM_AGE}`,
+        message: `Birth date is out of interval; It must be greater than ${NEXT_PUBLIC_MINIMUM_AGE} and lower than ${NEXT_PUBLIC_MAXIMUM_AGE}`,
       },
     ),
   parentName: z

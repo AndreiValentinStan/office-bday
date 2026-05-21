@@ -56,7 +56,6 @@ export default function Sidebar() {
             onClick={(e) => {
               e.preventDefault();
               logout(sessionId);
-              router.replace('/login')
             }}
           >
             Logout

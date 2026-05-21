@@ -1,7 +1,8 @@
+import { env } from "@/utils/envManager";
 import { createClient } from "redis";
 
 let client = null;
-const redisUrl = process.env.REDIS_URL;
+const redisUrl = env.REDIS_URL;
 
 try {
   client = createClient({ url: redisUrl }).on("error", (err) => {

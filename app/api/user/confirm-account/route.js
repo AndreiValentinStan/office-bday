@@ -1,5 +1,4 @@
-import { error } from "console";
-import z, { success } from "zod";
+import z from "zod";
 import errorHandler from "../../../../utils/errorHandler";
 import User from "../../../../models/user";
 

@@ -5,13 +5,11 @@ import RefreshTokens from "../../../../models/refreshTokens";
 import errorHandler from "../../../../utils/errorHandler";
 import { uuidSchema } from "../../../../validators/uuidSchema";
 import Sessions from "../../../../models/session";
-import { headers } from "next/headers";
-import moment from "moment/moment";
 
 const logoutHandler = async (req) => {
   try {
     // extract user id
-    const { sub: userId } = req.encapsulatedData;
+    //const { sub: userId } = req.encapsulatedData;
 
     // extract body
     const { sessionId } = await req.json();

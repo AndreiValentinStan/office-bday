@@ -29,7 +29,7 @@ export async function POST(req) {
       otpCode += randomInt(0, 9).toString();
       if (otpCode.length >= 6) break;
     }
-    const res = await redis.set(
+    await redis.set(
       email,
       JSON.stringify({
         otpCode,

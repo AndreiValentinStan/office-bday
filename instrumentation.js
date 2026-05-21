@@ -9,10 +9,10 @@ export async function register() {
   try {
     await sequelize.authenticate();
     console.log("Database connected succesfully: ");
-    const res = await sequelize.sync({
+    /* const res = await sequelize.sync( {
       alter: true, 
-    });
-    console.log(res);
+    }); */
+    
     console.log("Database syncronized successfully: ");
   } catch (err) {
     console.log("Database Error: ", err.message);

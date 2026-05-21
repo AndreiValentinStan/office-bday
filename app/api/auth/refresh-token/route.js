@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 import User from "../../../../models/user";
 import { sequelize } from "../../../../db/connectionDB";
 import { Sequelize } from "sequelize";
+import { env } from "@/utils/envManager";
 
 export async function POST(request) {
   try {
@@ -29,7 +30,8 @@ export async function POST(request) {
       );
 
     // verify authenticity of refresh token: gen hash from token and compare with hash
-    const hmac = createHmac("sha512", process.env.HMAC_SECRET);
+    const HMAC_SECRET = env.HMAC_SECRET;
+    const hmac = createHmac("sha512", HMAC_SECRET);
     hmac.update(token);
     const tokenHash = hmac.digest("hex");
 
@@ -105,7 +107,7 @@ export async function POST(request) {
         "Session expired. Please login",
         StatusCodes.FORBIDDEN,
       );
-    
+
     // check if account is ACTIVE
     const user = await User.findByPk(session.user_id, {
       attributes: [
@@ -119,16 +121,20 @@ export async function POST(request) {
           ),
           "full_name",
         ],
-        ['first_name', 'firstName'],
-        ['last_name', 'lastName'],
-        'phone',
-        'status'
+        ["first_name", "firstName"],
+        ["last_name", "lastName"],
+        "phone",
+        "status",
       ],
     });
-    if(!user?.status || user?.status !== 'ACTIVE')
-      throw new CustomError(`Your account is ${status}`, StatusCodes.FORBIDDEN, 'Can`t obtain new refresh token');
+    if (!user?.status || user?.status !== "ACTIVE")
+      throw new CustomError(
+        `Your account is ${status}`,
+        StatusCodes.FORBIDDEN,
+        "Can`t obtain new refresh token",
+      );
 
-    const isValidTime = moment(session.createdAt).add(1, 'month') >= moment();
+    const isValidTime = moment(session.createdAt).add(1, "month") >= moment();
     // session expired
     if (!isValidTime) {
       // mark session as expired
@@ -203,10 +209,7 @@ export async function POST(request) {
     );
 
     // 5) create hmac of refreshToken
-    const hmacRefreshTokenCreator = createHmac(
-      "sha512",
-      process.env.HMAC_SECRET,
-    );
+    const hmacRefreshTokenCreator = createHmac("sha512", HMAC_SECRET);
     hmacRefreshTokenCreator.update(newRefreshToken);
     const hmacRefreshToken =
       hmacRefreshTokenCreator.digest("hex") + "." + newRefreshToken;
@@ -225,12 +228,13 @@ export async function POST(request) {
     );
 
     // 7) generate new accessToken
+    const JWT_SECRET = env.JWT_SECRET;
     const accessToken = await new Promise((resolve, reject) => {
       jwt.sign(
         {
           role: "regular",
         },
-        process.env.JWT_SECRET,
+        JWT_SECRET,
         {
           subject: session.user_id,
           expiresIn: "5m",

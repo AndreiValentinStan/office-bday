@@ -6,7 +6,7 @@ import { CustomError } from "../utils/CustomError";
 import { StatusCodes } from "http-status-codes";
 import { verify } from "jsonwebtoken";
 import errorHandler from "../utils/errorHandler";
-import { NextRequest } from "next/server";
+import { env } from "@/utils/envManager";
 
 export const authenticateRequest = (next) => {
   return async (...rest) => {
@@ -20,29 +20,25 @@ export const authenticateRequest = (next) => {
           StatusCodes.UNAUTHORIZED,
           "Authorization header missing or is malformed",
         );
+      const JWT_SECRET = env.JWT_SECRET;
       const decodedData = await new Promise((resolve, reject) => {
-        verify(
-          authorization.split("=")[1],
-          process.env.JWT_SECRET,
-          (err, decoded) => {
-            if (err)
-              return reject(
-                new CustomError(
-                  "Access token error",
-                  StatusCodes.UNAUTHORIZED,
-                  err.message,
-                ),
-              );
-            resolve(decoded);
-          },
-        );
+        verify(authorization.split("=")[1], JWT_SECRET, (err, decoded) => {
+          if (err)
+            return reject(
+              new CustomError(
+                "Access token error",
+                StatusCodes.UNAUTHORIZED,
+                err.message,
+              ),
+            );
+          resolve(decoded);
+        });
       });
 
       // attach encapsulatedData to originalr equest object
-      NextRequest.prototype.encapsulatedData = decodedData;
-      //Request.prototype.encpasulatedData = decodedData;
-      const newRequest = new NextRequest(req);
-      return next(newRequest, ...restRequest);
+      req.encapsulatedData = decodedData;
+
+      return next(req, ...restRequest);
     } catch (e) {
       return errorHandler(e);
     }

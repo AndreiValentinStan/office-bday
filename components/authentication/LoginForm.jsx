@@ -5,7 +5,7 @@ import InputElement from "../ui/InputElement";
 import SignInButton from "../ui/SingInButton";
 import ErrorToast from "../ui/ErrorToast";
 import { useState } from "react";
-import Axios from "../../utils/axios";
+
 import { useAuth } from "../../hooks/auth";
 import apiManager from "../../utils/ApiInterface";
 
@@ -34,7 +34,6 @@ export default function LoginForm() {
           headers: { "Content-Type": "application/json" },
         },
       );
-      console.log(response);
 
       login(
         response.accessToken,

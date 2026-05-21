@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { CustomError } from "../../../../utils/CustomError";
-import z, { ZodError } from "zod";
+import z from "zod";
 import Employee from "../../../../models/employees";
 import moment from "moment";
 import { authenticateRequest } from "../../../../decorators/authenticateRequest";

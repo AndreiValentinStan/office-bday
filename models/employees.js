@@ -4,6 +4,7 @@ import { sequelize } from "../db/connectionDB";
 import { STRING, UUIDV4, UUID, DATE } from "sequelize";
 import { CustomError } from "../utils/CustomError";
 import { StatusCodes } from "http-status-codes";
+import { env } from "@/utils/envManager";
 
 const Employee = sequelize.define(
   "Employees",
@@ -54,12 +55,13 @@ const Employee = sequelize.define(
             throw new CustomError(
               "Can`t save into db due to wrong format: Date must have DD-MM-YYYY format",
               StatusCodes.BAD_REQUEST,
-              ""
+              "",
             );
 
           // check if date is not "older" than 100 year or from the future
-          const maxAge = process.env.NEXT_PUBLIC_MAXIMUM_AGE;
-          const minAge = process.env.NEXT_PUBLIC_MINIMUM_AGE;
+          const { NEXT_PUBLIC_MAXIMUM_AGE, NEXT_PUBLIC_MINIMUM_AGE } = process.env;
+          const maxAge = NEXT_PUBLIC_MAXIMUM_AGE;
+          const minAge = NEXT_PUBLIC_MINIMUM_AGE;
           const minimumOffset = moment().subtract(maxAge, "years");
           const maximumOffset = moment().subtract(minAge, "years");
           if (
@@ -69,7 +71,7 @@ const Employee = sequelize.define(
             throw new CustomError(
               "Can`t save into db due to wrong value: Date ca`t be older than 100 years or from the future",
               StatusCodes.BAD_REQUEST,
-              ""
+              "",
             );
         },
       },
@@ -77,12 +79,13 @@ const Employee = sequelize.define(
   },
   {
     tableName: "employees",
+    freezeTableName: true,
     uniqueKeys: {
       employee_unique_key: {
         fields: ["first_name", "last_name", "date_of_birth"],
       },
     },
-  }
+  },
 );
 
 export default Employee;

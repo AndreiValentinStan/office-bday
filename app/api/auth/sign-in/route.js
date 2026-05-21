@@ -12,9 +12,9 @@ import { createHash, createHmac, randomBytes } from "crypto";
 import RefreshTokens from "../../../../models/refreshTokens";
 import moment from "moment";
 import jwt from "jsonwebtoken";
-import { BaseError, EmptyResultError } from "sequelize";
 import { loginDataSchema } from "../../../../validators/login";
 import errorHandler from "../../../../utils/errorHandler";
+import {env} from '../../../../utils/envManager';
 
 export async function POST(request) {
   try {
@@ -105,7 +105,8 @@ export async function POST(request) {
     });
 
     // generate hmac
-    const hmac = createHmac("sha512", process.env.HMAC_SECRET);
+    const HMAC_SECRET = env.HMAC_SECRET;
+    const hmac = createHmac("sha512", HMAC_SECRET);
     hmac.update(refreshToken);
     const hmacRefreshToken = hmac.digest("hex") + "." + refreshToken;
 
@@ -122,12 +123,13 @@ export async function POST(request) {
     );
 
     // create jwt acces token
+    const JWT_SECRET = env.JWT_SECRET;
     const accessToken = await new Promise((resolve, reject) => {
       jwt.sign(
         {
           role: "regular",
         },
-        process.env.JWT_SECRET,
+        JWT_SECRET,
         {
           expiresIn: "1500s",
           subject: userId,

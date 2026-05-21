@@ -3,52 +3,59 @@ import { compare, genSalt, hash } from "bcryptjs";
 
 import { STRING, UUIDV4, UUID, ENUM } from "sequelize";
 
-const User = sequelize.define("Users", {
-  id: {
-    type: UUID,
-    defaultValue: UUIDV4,
-    unique: true,
-    primaryKey: true,
-  },
-  first_name: {
-    type: STRING,
-    allowNull: false,
-    validate: {
-      len: [2, 50],
+const User = sequelize.define(
+  "Users",
+  {
+    id: {
+      type: UUID,
+      defaultValue: UUIDV4,
+      unique: true,
+      primaryKey: true,
     },
-  },
-  last_name: {
-    type: STRING,
-    allowNull: false,
-    validate: {
-      len: [2, 50],
-    },
-  },
-  phone: {
-    type: STRING,
-    allowNull: true,
-  },
-  email: {
-    type: STRING,
-    allowNull: false,
-    unique: true,
-    validate: {
-      len: [2, 100],
-      isEmail: {
-        msg: "Invalid email address",
+    first_name: {
+      type: STRING,
+      allowNull: false,
+      validate: {
+        len: [2, 50],
       },
     },
+    last_name: {
+      type: STRING,
+      allowNull: false,
+      validate: {
+        len: [2, 50],
+      },
+    },
+    phone: {
+      type: STRING,
+      allowNull: true,
+    },
+    email: {
+      type: STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        len: [2, 100],
+        isEmail: {
+          msg: "Invalid email address",
+        },
+      },
+    },
+    status: {
+      type: ENUM,
+      values: ["ACTIVE", "PENDING", "REVOKED"],
+      defaultValue: "PENDING",
+    },
+    password: {
+      type: STRING,
+      allowNull: false,
+    },
   },
-  status: {
-    type: ENUM,
-    values: ["ACTIVE", "PENDING", "REVOKED"],
-    defaultValue: "PENDING",
+  {
+    tableName: "users",
+    freezeTableName: true,
   },
-  password: {
-    type: STRING,
-    allowNull: false,
-  },
-});
+);
 
 User.beforeCreate(async (user) => {
   const salt = await genSalt();
@@ -57,7 +64,7 @@ User.beforeCreate(async (user) => {
 });
 
 User.beforeBulkUpdate(async (user) => {
-  console.log({user});
+  console.log({ user });
   if (user?.attributes?.password) {
     const salt = await genSalt();
     const hashedPassword = await hash(user.attributes.password, salt);

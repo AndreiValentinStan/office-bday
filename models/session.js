@@ -26,7 +26,7 @@ const Sessions = sequelize.define("Sessions", {
   changing_status_reason: {
     type: STRING,
   },
-});
+}, {tableName: 'sessions', freezeTableName: true});
 
 User.hasMany(Sessions, {
   foreignKey: "user_id",

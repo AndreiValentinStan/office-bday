@@ -7,15 +7,15 @@ data. It also sends reminder emails a day before an employee's birthday and on t
 
 - [x] Create project
 - [ ] Create CI/CD pipeline
-- [ ] Create models for employee data
-- [ ] Initialize database
-- [ ] Implement authentication
-- [ ] Display employee birthday records
-- [ ] Add employee birthday records
-- [ ] Edit employee birthday records
-- [ ] Delete employee birthday records
+- [X] Create models for employee data
+- [X] Initialize database
+- [X] Implement authentication
+- [X] Display employee birthday records
+- [X] Add employee birthday records
+- [X] Edit employee birthday records
+- [X] Delete employee birthday records
 - [ ] Export employee birthday data in CSV format
-- [ ] Import employee birthday data in CSV format
+- [X] Import employee birthday data in CSV format
 - [ ] Implement email reminder functionality
 - [ ] Send email a day before the birthday
 - [ ] Send email on the day of the birthday
@@ -29,3 +29,10 @@ intuitive table layout.
 are added without duplicating data.
 - The email reminder functionality will consider Romanian official free days, ensuring that reminders are appropriately
 sent without interruptions.
+
+
+## Init DB
+
+
+## Deploy
+> next build && next start
