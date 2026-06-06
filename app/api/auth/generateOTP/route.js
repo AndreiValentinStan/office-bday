@@ -4,6 +4,7 @@ import { emailSchema } from "../../../../validators/register";
 import errorHandler from "../../../../utils/errorHandler";
 import User from "../../../../models/user";
 import { CustomError } from "../../../../utils/CustomError";
+import { sendEmail } from "../../../../utils/mailSender";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
 
@@ -43,6 +44,12 @@ export async function POST(req) {
         },
       },
     );
+
+    sendEmail({
+      to: [email],
+      subject: "Happy Bday emai validation",
+      body: `This is your OTP code: ${otpCode}. It's valid maximum ten minutes from now.`,
+    });
 
     return Response.json(
       {

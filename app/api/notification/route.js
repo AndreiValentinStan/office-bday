@@ -1,5 +1,4 @@
 import { col, fn, Op, where } from "sequelize";
-//import { authenticateRequest } from "../../../decorators/authenticateRequest";
 import { Employee } from "../../../models";
 import moment from "moment";
 import { emailFormatter } from "../../../utils/emailFormatter";

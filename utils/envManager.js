@@ -15,4 +15,8 @@ export const env = {
   HMAC_SECRET: getEnv("HMAC_SECRET"),
   JWT_SECRET: getEnv("JWT_SECRET"),
   REDIS_URL: getEnv("REDIS_URL"),
+  MAIL_CL_IP: getEnv("MAIL_CL_IP"),
+  MAIL_PORT: getEnv("MAIL_PORT"),
+  MAIL_USER: getEnv("MAIL_USER"),
+  MAIL_PASS: getEnv("MAIL_PASS"),
 };

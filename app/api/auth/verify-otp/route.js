@@ -6,7 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import z from "zod";
 import { emailSchema } from "../../../../validators/email";
 
-const tenMinutes = 60;
+const tenMinutes = 600;
 
 export async function POST(req) {
   try {
