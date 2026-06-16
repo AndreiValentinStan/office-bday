@@ -7,7 +7,7 @@ const { MAIL_CL_IP, MAIL_PORT, MAIL_USER, MAIL_PASS } = env;
 /*
  * Sends an email through an ssh connection using mutt on remote end
  * @param {Object} emailData             - email configuration data
- * @param {String} emailData.to          - recipient's email address
+ * @param {<String>[]} emailData.to      - recipient's email addresses
  * @param {String} emailData.subject     - email subject
  * @param {String} emailData.body        - email content
  */
