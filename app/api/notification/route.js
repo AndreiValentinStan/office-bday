@@ -11,10 +11,11 @@ import { sendEmail } from "@/utils/mailSender";
 
 const { body, subject } = emailFormatter;
 
-export async function GET() {
+export async function GET(req) {
+  const testDate = req.nextUrl.searchParams;
   try {
     // get date of latest send notification
-    const { last_sended } = await Notification.findByPk(1, {
+    /* const { last_sended } = await Notification.findByPk(1, {
       attributes: ["last_sended"],
       rejectOnEmpty: true,
     });
@@ -29,10 +30,10 @@ export async function GET() {
         "Notification email already sended",
         StatusCodes.BAD_REQUEST,
       );
-    }
+    } */
 
     let celebrationsDates = [];
-    let currentDate = moment('2026-17-07', 'YYYY-DD-MM');
+    let currentDate = testDate ? moment(testDate, 'YYYY-DD-MM') : moment();
     let skipReason = "";
     let isTodayDate = true;
 
@@ -105,7 +106,7 @@ export async function GET() {
       throw new CustomError("Skip sending email: no celebrations today!");
 
     // extract active users as email destinations
-    const users = await User.findAll({
+    let users = await User.findAll({
       attributes: ["email"],
       where: {
         status: "ACTIVE",
@@ -114,16 +115,19 @@ export async function GET() {
     if (users.length < 1)
       throw new CustomError("Skip sending email: no destinations found");
 
+    users = users.map(user => user.email)
+    console.log({to: users.toString()});
+
     // send email
-    const emailBody = body(celebratedEmployees);
+    const emailBody = body(celebratedEmployees, testDate);
     const emailSubject = subject();
 
-    /* sendEmail({
+    sendEmail({
       to: users,
       subject: emailSubject,
       body: emailBody,
     });
- */
+
 
     //update the date of last sended email
     await Notification.update(

@@ -3,7 +3,7 @@ import { CustomError } from "./CustomError";
 
 const emailSubject = `Aniversare`;
 
-const body = (celebratedEmployees) => {
+const body = (celebratedEmployees, testDate) => {
   // check if are celebrations beyond current day
   let totalCelebrationDays = [];
   for (let employee of celebratedEmployees) {
@@ -14,7 +14,7 @@ const body = (celebratedEmployees) => {
   if (totalCelebrationDays.length < 1)
     throw new CustomError("Celebrated employees array is in wrong format");
 
-  const currentDate = moment("2026-17-07", "YYYY-DD-MM").format("MMMM DD");
+  const currentDate = testDate ? moment(testDate, "YYYY-DD-MM").format("MMMM DD") : moment().format("MMMM DD");
   console.log({ currentDate });
 
   let formatedCelebrations = {};

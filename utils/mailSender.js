@@ -12,13 +12,14 @@ const { MAIL_CL_IP, MAIL_PORT, MAIL_USER, MAIL_PASS } = env;
  * @param {String} emailData.body        - email content
  */
 export function sendEmail(emailData) {
+  console.log(emailData);
   const { body, subject, to } = emailDataValidator.parse(emailData);
 
   const sshConn = new Client();
 
   sshConn
     .on("ready", () => {
-      const muttCommand = `echo "${body}" | mutt -F ./muttrc.ce -s "${subject}" "${to}"`;
+      const muttCommand = `echo "${body}" | mutt -F ./muttrc.ce -s "${subject}" "${to.toString()}"`;
       console.log("Executing commnad for sending email from remote");
 
       sshConn.exec(muttCommand, (err, stream) => {
