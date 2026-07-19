@@ -3,6 +3,8 @@ import { useAuth } from "@/hooks/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Image from "next/image";
+import sts_image from "@/public/sts_image.png";
 
 export default function Sidebar() {
   const { firstName, lastName, email, logout, sessionId } = useAuth();
@@ -20,10 +22,16 @@ export default function Sidebar() {
         <div className="min-w-full">
           {/* image */}
           <div className="flex justify-center">
-            <img
+            <Image
+              src={sts_image}
+              width={120}
+              className="rounded-full"
+              alt="sts_logo"
+            ></Image>
+            {/*  <img
               src="https://sts.ro/fodidin/uploads/2024/08/5fba193160aa826e.png"
               className="rounded-full w-24"
-            />
+            /> */}
           </div>
           {/* links */}
           <div className="flex flex-col pt-10 gap-y-2 text-xl text-white pl-12">

@@ -16,7 +16,7 @@ export default class Axios {
     console.log("GETTING AXIOS INSTANCE");
     if (!Axios.axiosInstance) {
       console.log("AXIOS INSTANCE NOT FOUND! CREATING NEW ONE!");
-      const base_url = process.env['NEXT_PUBLIC_BASE_URL'] || "localhost:3000";
+      const base_url = process.env["NEXT_PUBLIC_BASE_URL"] || "localhost:3000";
       const axiosInstance = axios.create({
         baseURL: base_url,
       });
@@ -31,7 +31,10 @@ export default class Axios {
             // abort if active request
             if (Axios.activeRequest) {
               console.log("Already in process of requesting new token");
-              return { success: false, error: "Waiting for authentication" };
+              return {
+                status: "in progress",
+                data: { success: false, error: "Waiting for authentication" },
+              };
             }
             if (
               response.status === 401 &&
@@ -43,7 +46,7 @@ export default class Axios {
               const resp = await Axios.axiosInstance.post(
                 "/auth/refresh-token",
               );
-              console.log({ respFromResp: resp });
+
               console.log({
                 oldToken: Axios.axiosInstance.defaults.headers.common,
               });

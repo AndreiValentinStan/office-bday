@@ -1,5 +1,7 @@
 import z, { success } from "zod";
 import Employee from "@/models/employees";
+import moment from "moment";
+import { env } from "process";
 
 function convertToNumber(value) {
   console.log({ val: value });
@@ -57,6 +59,31 @@ const validationSchema = z
         .max(70, "Age must be max 70")
         .optional(),
     ),
+    day: z.preprocess(
+      convertToNumber,
+      z
+        .number("Day must be a number")
+        .int("Day must be an integer")
+        .min(1, "Day must be at least 1")
+        .max(31, "Day must be max 31")
+        .optional(),
+    ),
+    month: z.preprocess(
+      convertToNumber,
+      z
+        .number("Month must be a number")
+        .int("Month must be an integer")
+        .min(1, "Month must be at least 1")
+        .max(12, "Month must be max 12")
+        .optional(),
+    ),
+    year: z.preprocess(
+      convertToNumber,
+      z
+        .number("Year must be a number")
+        .int("Year must be an integer")
+        .optional(),
+    ),
   })
   .refine(
     async (params) => {
@@ -70,6 +97,21 @@ const validationSchema = z
       return true;
     },
     { message: "Altered page number or limit query detected" },
+  )
+  .refine(
+    (params) => {
+      // validate years: birth date year recieved by filtering system
+      const { year } = params;
+      const { NEXT_PUBLIC_MAXIMUM_AGE, NEXT_PUBLIC_MINIMUM_AGE } = process.env;
+      if (!year) return true;
+      if (
+        year > moment().year() - NEXT_PUBLIC_MINIMUM_AGE ||
+        year < moment().year() - NEXT_PUBLIC_MAXIMUM_AGE
+      )
+        return false;
+      return true;
+    },
+    { message: "Birth year out of interval" },
   );
 
 export default validationSchema;

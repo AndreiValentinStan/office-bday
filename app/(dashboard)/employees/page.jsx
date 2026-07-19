@@ -11,6 +11,8 @@ import DeleteEmployeeModal from "../../../components/ui/employees/DeleteEmployee
 import PaginationController from "../../../components/ui/pagination/PaginationController";
 import VisibleColumns from "@/components/ui/employees/VisibleColumns";
 import api from "../../../utils/ApiInterface";
+import toast from "react-hot-toast";
+import { CustomError } from "@/utils/CustomError";
 
 export default function Employees() {
   const sectionsStyle = "w-full bg-gray-100 p-4 rounded-sm";
@@ -32,25 +34,33 @@ export default function Employees() {
   const [triggerFilter, setTriggerFilter] = useState(false);
 
   // new filter state
-  const filterStateRef = useRef({page: 1, count: 20});
+  const filterStateRef = useRef({ page: 1, count: 20 });
 
   // filter handler
   const filterChangeHandler = (changes) => {
-    if(filterStateRef.current)
-      filterStateRef.current = {...filterStateRef.current, ...changes}
+    if (filterStateRef.current)
+      filterStateRef.current = { ...filterStateRef.current, ...changes };
   };
 
   // filter dispatch handler
   function handleFilterDispatch(event, filtersValue) {
     event.preventDefault();
-    filterChangeHandler({...filtersValue, page: 1, count: 20});
+    filterChangeHandler({ ...filtersValue, page: 1, count: 20 });
     setPageNumber(1);
     setPageSize(20);
-    if (Object.entries(filterStateRef.current).length > 0) setTriggerFilter((t) => !t);
+    if (Object.entries(filterStateRef.current).length > 0)
+      setTriggerFilter((t) => !t);
   }
   function resetFilterHandler(e) {
     e.preventDefault();
-    filterStateRef.current = {page: 1, count: 20, order: 'asc', groupBy: 'lastName'}
+    filterStateRef.current = {
+      page: 1,
+      count: 20,
+      order: "asc",
+      day: "",
+      month: "",
+      year: "",
+    };
     setPageNumber(1);
     setPageSize(20);
     setTriggerFilter((t) => !t);
@@ -70,7 +80,7 @@ export default function Employees() {
       },
       {
         label: "Birth Date",
-        inputType: "text",
+        inputType: "date",
         searchParam: "date_of_birth",
       },
     ],
@@ -87,12 +97,22 @@ export default function Employees() {
       let searchQuery = "";
       for (const [key, value] of Object.entries(filterStateRef.current)) {
         if (searchQuery.length > 0) searchQuery += "&";
+        if (key === "date_of_birth") {
+          let firstItertion = true;
+          for (let [unit, amount] of Object.entries(value)) {
+            if (!firstItertion) searchQuery += "&";
+            if (firstItertion) firstItertion = false;
+            if (amount)
+              searchQuery += unit.toString() + "=" + amount.toString();
+          }
+          continue;
+        }
         searchQuery += key.toString() + "=" + value.toString();
       }
       const {
         employees: { count, employees },
       } = await api.get(
-        `/employee/get-employees${Object.keys(filterStateRef.current).length ? '?' : ''}${
+        `/employee/get-employees${Object.keys(filterStateRef.current).length ? "?" : ""}${
           searchQuery.length > 0 ? `${searchQuery}` : ``
         }`,
       );
@@ -101,7 +121,16 @@ export default function Employees() {
         employees,
       });
     } catch (err) {
+      if (err instanceof CustomError) {
+        if (err.statusCode === 4001) {
+          console.log(
+            "Initial fetch failed due to missing or expired access token!",
+          );
+          return;
+        }
+      }
       console.log(err);
+      toast.error(err.message);
     }
     setIsLoading(false);
   }
@@ -109,8 +138,12 @@ export default function Employees() {
   // page size
   const [pageSize, setPageSize] = useState(20);
 
-  function pageSizeHandler({target}){
-    filterStateRef.current = {...filterStateRef.current, count: target?.value || 20, page: 1};
+  function pageSizeHandler({ target }) {
+    filterStateRef.current = {
+      ...filterStateRef.current,
+      count: target?.value || 20,
+      page: 1,
+    };
     setPageNumber(1);
     setPageSize(target?.value || 20);
   }
@@ -120,8 +153,7 @@ export default function Employees() {
 
   // modify page size handler
   function pageNumberHandler(value) {
-    console.log(value);
-    filterStateRef.current = {...filterStateRef.current, page: value || 1};
+    filterStateRef.current = { ...filterStateRef.current, page: value || 1 };
     setPageNumber(value || 1);
   }
 
@@ -160,7 +192,6 @@ export default function Employees() {
             setShowEditModal(true);
           }
           if (e.target.id.includes("delete")) {
-            console.log({ employees });
             const id = e.target.id.split("_")[1];
             const employeeToDelete = employees.employees.find(
               (employee) => employee.id === id,
@@ -218,7 +249,11 @@ export default function Employees() {
               currentPage={pageNumber - 1}
               resultsPerPage={pageSize}
             >
-              <PageCounter setPageSize={pageSizeHandler} pageSize={pageSize} employeesCount={employees?.count || ''}/>
+              <PageCounter
+                setPageSize={pageSizeHandler}
+                pageSize={pageSize}
+                employeesCount={employees?.count || ""}
+              />
             </EmployeesTable>
           </OutsideWrapper>
         </section>
@@ -228,7 +263,6 @@ export default function Employees() {
           currentPage={pageNumber}
           totalCount={Math.ceil(employees?.count / pageSize) || 0}
           changePageHandler={(num) => {
-            
             pageNumberHandler(num);
           }}
         />

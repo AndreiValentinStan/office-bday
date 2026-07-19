@@ -31,7 +31,7 @@ export default function FilterField({
       </label>
       <input
         type={inputType}
-        className="py-1 pl-2 rounded-sm border border-blue-400 focus:outline-blue-500 focus:outline focus:border-transparent focus:outline-2 text-gray-600"
+        className="py-1 pl-2 rounded-sm border border-blue-400 focus:outline-blue-500 focus:outline-offset-0 focus:outline focus:border-transparent focus:outline-2 text-gray-600"
         onChange={/* (e) => {
           setFieldValue(e, searchParam);
         } */({target}) => setFieldValue(searchParam, target.value)}

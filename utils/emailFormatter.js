@@ -31,6 +31,7 @@ const body = (celebratedEmployees, testDate) => {
     };
   }
   console.log(formatedCelebrations);
+  formatedCelebrations[currentDate].map((d, i, arr) => console.log({d, i, arr}))
   let bodyMessage = `Am onoarea sa va salut, `;
   bodyMessage +=
     !formatedCelebrations[currentDate]?.length ||

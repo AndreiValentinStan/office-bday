@@ -214,6 +214,11 @@ export async function POST(request) {
     const hmacRefreshToken =
       hmacRefreshTokenCreator.digest("hex") + "." + newRefreshToken;
 
+      console.log({now: moment(), afterTwoHours:  moment()
+        .add(12, "seconds")
+        .format("ddd, DD MMM YYYY HH:mm:ss")
+        .toString() + " GMT"});
+
     // 6) set refreshToken cookie
     const afterTwoHours =
       moment()
@@ -224,7 +229,7 @@ export async function POST(request) {
     cookieHeader.set(
       "Set-Cookie",
       `
-       refreshToken=${hmacRefreshToken};path=/api/auth/;httpOnly;SameSite=Strict;expires=${afterTwoHours}`,
+       refreshToken=${hmacRefreshToken};path=/api/auth/;httpOnly;SameSite=Strict;max-age=7200`,
     );
 
     // 7) generate new accessToken

@@ -137,7 +137,9 @@ export default function AuthProvider({ children }) {
     // try to get new access token
     async function setSession() {
       try {
+        console.log({ inst: Axios.axiosInstance });
         const resp = await Axios.axiosInstance.post("/auth/refresh-token");
+        console.log({ resp });
         if (resp?.status === 200 && resp?.data?.accessToken) {
           console.log("Session initialized by quering new access token");
           const { firstName, lastName, phone } = resp.data.user;
@@ -162,8 +164,10 @@ export default function AuthProvider({ children }) {
       }
     }
 
-    if (localStorage.getItem("SESSION") === "ESTABLISHED") setSession();
-    else
+    if (localStorage.getItem("SESSION") === "ESTABLISHED") {
+      if (!Axios.axiosInstance) Axios.initialize();
+      setSession();
+    } else
       dispatch({
         type: "SETTLED",
         payload: true,

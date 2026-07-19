@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import FilterField from "./FilterField";
+import DateFilter from './DateFilter';
 
 export default function Filter({
   filters,
@@ -15,8 +16,11 @@ export default function Filter({
   return (
     <form className="flex flex-wrap gap-y-5 justify-center gap-x-5 border border-gray-200 p-6 rounded-md">
       {filters.filters.map((filter, index) => {
-        return (
-          <FilterField
+        switch(filter.inputType){
+          case 'date':
+            return <DateFilter key={index} setFieldValue={valueChangeHanlder} fieldValue={filterValue[filter?.searchParam]} searchParam={filter.searchParam}/>
+          default:
+            return <FilterField
             key={index}
             label={filter.label}
             inputType={filter.inputType}
@@ -24,7 +28,7 @@ export default function Filter({
             fieldValue={/* filterState[filter.searchParam] */filterValue[filter?.searchParam] || ''}
             searchParam={filter.searchParam}
           />
-        );
+        }
       })}
       <button
         className="text-white bg-blue-500 px-10 py-1 rounded-sm hover:bg-blue-600"

@@ -119,7 +119,7 @@ export async function POST(request) {
     const cookieHeader = new Headers();
     cookieHeader.set(
       "Set-Cookie",
-      `refreshToken=${hmacRefreshToken};path=/api/auth/;httpOnly;SameSite=Strict;expires=${afterTwoHours}`,
+      `refreshToken=${hmacRefreshToken};path=/api/auth/;httpOnly;SameSite=Strict;max-age=7200`,
     );
 
     // create jwt acces token
@@ -131,7 +131,7 @@ export async function POST(request) {
         },
         JWT_SECRET,
         {
-          expiresIn: "1500s",
+          expiresIn: "15s",
           subject: userId,
         },
         (err, token) => {
@@ -140,8 +140,6 @@ export async function POST(request) {
         },
       );
     });
-
-    console.log({ user });
 
     return Response.json(
       {

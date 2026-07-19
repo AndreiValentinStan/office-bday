@@ -1,5 +1,5 @@
 import Employee from "../../../../models/employees";
-import { Op } from "sequelize";
+import { col, fn, Op, where } from "sequelize";
 import moment from "moment";
 import errorHandler from "../../../../utils/errorHandler";
 import getEmployeesSchema from "../../../../validators/getEmployees";
@@ -13,8 +13,9 @@ async function handler(req) {
 
     const searchParams = Object.fromEntries(params.entries());
 
-    const { first_name, last_name, age, page, count } =
+    const { first_name, last_name, age, page, count, day, month, year } =
       await getEmployeesSchema.parseAsync(searchParams);
+
     const pagination = {};
     if (!page) pagination.limit = 0;
 
@@ -22,7 +23,24 @@ async function handler(req) {
     pagination.offset = !page ? 0 : (page - 1) * count;
 
     // default ordering
-    const order = ['last_name', 'ASC']
+    const order = ["last_name", "ASC"];
+
+    // birth date formatting
+    let birthDate = "";
+    let format = "";
+    if (day) {
+      birthDate += day;
+      format += "%e";
+    }
+    if (month) {
+      if (month < 10) birthDate += "0";
+      birthDate += month;
+      format += "%m";
+    }
+    if (year) {
+      birthDate += year;
+      format += "%Y";
+    }
 
     const { count: employeesCount, rows } = await Employee.findAndCountAll({
       ...pagination,
@@ -37,8 +55,14 @@ async function handler(req) {
             [Op.like]: `%${last_name}%`,
           },
         }),
+        ...(birthDate && {
+          where: where(
+            fn("date_format", col("date_of_birth"), format),
+            birthDate,
+          ),
+        }),
       },
-      order: [order]
+      order: [order],
     });
 
     let employeesAges = [];
