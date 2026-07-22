@@ -96,7 +96,9 @@ export default function Employees() {
     try {
       let searchQuery = "";
       for (const [key, value] of Object.entries(filterStateRef.current)) {
-        if (searchQuery.length > 0) searchQuery += "&";
+        if (searchQuery.length > 0 && value.toString().length > 0)
+          searchQuery += "&";
+
         if (key === "date_of_birth") {
           let firstItertion = true;
           for (let [unit, amount] of Object.entries(value)) {
@@ -107,8 +109,12 @@ export default function Employees() {
           }
           continue;
         }
-        searchQuery += key.toString() + "=" + value.toString();
+        searchQuery +=
+          value.toString().length > 0
+            ? key.toString() + "=" + value.toString()
+            : "";
       }
+
       const {
         employees: { count, employees },
       } = await api.get(
@@ -116,6 +122,7 @@ export default function Employees() {
           searchQuery.length > 0 ? `${searchQuery}` : ``
         }`,
       );
+
       setEmployees({
         count,
         employees,

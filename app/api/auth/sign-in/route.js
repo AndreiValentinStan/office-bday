@@ -14,7 +14,7 @@ import moment from "moment";
 import jwt from "jsonwebtoken";
 import { loginDataSchema } from "../../../../validators/login";
 import errorHandler from "../../../../utils/errorHandler";
-import {env} from '../../../../utils/envManager';
+import { env } from "../../../../utils/envManager";
 
 export async function POST(request) {
   try {
@@ -104,6 +104,8 @@ export async function POST(request) {
       token_hash: refreshTokenHash,
     });
 
+    const { ACCESS_TOKEN_VALIBILITY, REFRESH_TOKEN_VALABILITY } = process.env;
+
     // generate hmac
     const HMAC_SECRET = env.HMAC_SECRET;
     const hmac = createHmac("sha512", HMAC_SECRET);
@@ -111,15 +113,10 @@ export async function POST(request) {
     const hmacRefreshToken = hmac.digest("hex") + "." + refreshToken;
 
     // STORE HMAC IN A COOKIE
-    const afterTwoHours =
-      moment()
-        .add(100, "seconds")
-        .format("ddd, DD MMM YYYY HH:mm:ss")
-        .toString() /* + " GMT" */;
     const cookieHeader = new Headers();
     cookieHeader.set(
       "Set-Cookie",
-      `refreshToken=${hmacRefreshToken};path=/api/auth/;httpOnly;SameSite=Strict;max-age=7200`,
+      `refreshToken=${hmacRefreshToken};path=/api/auth/;httpOnly;SameSite=Strict;max-age=${REFRESH_TOKEN_VALABILITY}`,
     );
 
     // create jwt acces token
@@ -131,7 +128,7 @@ export async function POST(request) {
         },
         JWT_SECRET,
         {
-          expiresIn: "15s",
+          expiresIn: `${ACCESS_TOKEN_VALIBILITY}s`,
           subject: userId,
         },
         (err, token) => {
@@ -151,7 +148,7 @@ export async function POST(request) {
           firstName,
           lastName,
           phone,
-          session: session.getDataValue('id')
+          session: session.getDataValue("id"),
         },
       },
       {

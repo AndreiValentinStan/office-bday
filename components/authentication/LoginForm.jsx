@@ -19,16 +19,16 @@ export default function LoginForm() {
     let [email, password] = e.target.form || [];
     email = email.value;
     password = password.value;
-    if (!email || !password) {
+    /* if (!email || !password) {
       setSignInError("Please provide email and password");
       return;
-    }
+    } */
     try {
       const response = await post(
         "/auth/sign-in",
         {
-          email,
-          password,
+          /* email */email: 'test@email.com',
+          /* password */password: 'anaAremere2!'
         },
         {
           headers: { "Content-Type": "application/json" },

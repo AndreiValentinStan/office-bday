@@ -1,5 +1,19 @@
 import axios from "axios";
 
+let requestsQueue = [];
+
+function processQueue(error, token) {
+  requestsQueue.forEach((promise) => {
+    if (error) {
+      promise.reject(error);
+    }
+    promise.resolve(token);
+  });
+  requestsQueue = [];
+}
+
+let isRefreshing = false;
+
 export default class Axios {
   static axiosInstance = null;
   static interceptor = false;
@@ -25,44 +39,43 @@ export default class Axios {
       console.log("AXIOS INSTANCE CREATED! SETTING INTERCEPTOR");
       Axios.axiosInstance.interceptors.response.use(
         (response) => response,
-        async ({ response }) => {
-          console.log({ interceptorResponse: response });
-          try {
-            // abort if active request
-            if (Axios.activeRequest) {
-              console.log("Already in process of requesting new token");
-              return {
-                status: "in progress",
-                data: { success: false, error: "Waiting for authentication" },
-              };
-            }
-            if (
-              response.status === 401 &&
-              response.statusText === "Unauthorized" &&
-              (response.data.error.data === "jwt expired" ||
-                response.data.error.data === "jwt malformed")
-            ) {
-              Axios.activeRequest = true;
-              const resp = await Axios.axiosInstance.post(
-                "/auth/refresh-token",
+        async (error) => {
+          const originalRequest = error.config;
+          if (originalRequest._retry && error.request.status !== 401) {
+            const errorMessage =
+              error?.response?.data?.error?.message || error?.message;
+            return Promise.reject({ message: errorMessage, logoff: false });
+          }
+          if (isRefreshing) {
+            return new Promise((res, rej) => {
+              requestsQueue.push({ resolve: res, reject: rej });
+            })
+              .then((token) => {
+                originalRequest.headers["Authorization"] = `Bearer=${token}`;
+                return Axios.axiosInstance(originalRequest);
+              })
+              .catch((err) =>
+                Promise.reject({ message: err.message, logoff: true }),
               );
+          }
+          isRefreshing = true;
+          originalRequest._retry = true;
 
-              console.log({
-                oldToken: Axios.axiosInstance.defaults.headers.common,
-              });
-              if (resp.status === 200) {
-                Axios.setAccessToken(resp.data.accessToken);
-                Axios.activeRequest = false;
+          try {
+            const {
+              data: { accessToken },
+            } = await axios.post("/api/auth/refresh-token");
 
-                return { retry: true };
-              }
-            }
-            return response;
+            Axios.setAccessToken(accessToken);
+            originalRequest.headers["Authorization"] = `Bearer=${accessToken}`;
+            processQueue(null, accessToken);
+            return Axios.axiosInstance(originalRequest);
           } catch (err) {
-            console.log({ axiosErr: err });
-            Axios.activeRequest = false;
-            Axios.logout();
-            throw err;
+            const message = err?.response?.data?.error?.message || err?.message;
+            processQueue(err, null);
+            return Promise.reject({ message, logoff: true });
+          } finally {
+            isRefreshing = false;
           }
         },
       );

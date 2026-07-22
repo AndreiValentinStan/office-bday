@@ -121,9 +121,13 @@ export default function AuthProvider({ children }) {
     // register axios logout -> used on axios interceptor
     Axios.logout = (sessionId) => {
       console.log("SHOULD LOGOUT");
-      Axios.axiosInstance.post("/auth/logout", {
-        sessionId: sessionId,
-      });
+
+      Axios.axiosInstance
+        .post("/auth/logout", {
+          sessionId: sessionId,
+        })
+        .catch((err) => console.log("ignore result of logout"));
+
       localStorage.setItem("SESSION", "DROPPED");
       dispatch({
         type: "LOGOUT",

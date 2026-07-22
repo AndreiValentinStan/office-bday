@@ -1,5 +1,4 @@
 import Axios from "./axios";
-import { CustomError } from "./CustomError";
 
 const axiosInstance = Axios.initialize();
 
@@ -7,10 +6,7 @@ function expiredTokenHandler(method) {
   return async (...requestParameters) => {
     try {
       let response = await method(...requestParameters);
-      if (response?.retry) {
-        response = await method(...requestParameters);
-      }
-      console.log({ response });
+
       const {
         data: { success, data: apiData, error },
       } = response || {
@@ -20,20 +16,12 @@ function expiredTokenHandler(method) {
           error: null,
         },
       };
-      if (!success) {
-        if (response?.status === "in progress")
-          throw new CustomError(
-            "Waiting for renew auth",
-            4001,
-            "Acces token expired",
-          );
-        throw new Error(error.message || "Request error");
-      }
+
       return apiData;
     } catch (err) {
-      if(err instanceof CustomError)
-        throw err;
-      Axios?.logout();
+      console.log({ err });
+      if (err?.logoff) Axios?.logout();
+      throw err;
     }
   };
 }

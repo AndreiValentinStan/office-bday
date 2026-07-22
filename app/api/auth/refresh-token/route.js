@@ -17,7 +17,7 @@ export async function POST(request) {
     const { value } = request.cookies.get("refreshToken") || {};
     if (!value)
       throw new CustomError(
-        "Couldn`t fetch data from refresh token cookie",
+        "Refresh Token cookie missing",
         StatusCodes.UNAUTHORIZED,
       );
 
@@ -85,6 +85,8 @@ export async function POST(request) {
         StatusCodes.FORBIDDEN,
       );
     }
+
+    const { ACCESS_TOKEN_VALIBILITY, REFRESH_TOKEN_VALABILITY } = process.env;
 
     // check if refresh token is still valid
     // valid time 2h, 7dyas etc
@@ -214,22 +216,13 @@ export async function POST(request) {
     const hmacRefreshToken =
       hmacRefreshTokenCreator.digest("hex") + "." + newRefreshToken;
 
-      console.log({now: moment(), afterTwoHours:  moment()
-        .add(12, "seconds")
-        .format("ddd, DD MMM YYYY HH:mm:ss")
-        .toString() + " GMT"});
-
     // 6) set refreshToken cookie
-    const afterTwoHours =
-      moment()
-        .add(12, "seconds")
-        .format("ddd, DD MMM YYYY HH:mm:ss")
-        .toString() + " GMT";
+
     const cookieHeader = new Headers();
     cookieHeader.set(
       "Set-Cookie",
       `
-       refreshToken=${hmacRefreshToken};path=/api/auth/;httpOnly;SameSite=Strict;max-age=7200`,
+       refreshToken=${hmacRefreshToken};path=/api/auth/;httpOnly;SameSite=Strict;max-age=${REFRESH_TOKEN_VALABILITY}`,
     );
 
     // 7) generate new accessToken
@@ -242,7 +235,7 @@ export async function POST(request) {
         JWT_SECRET,
         {
           subject: session.user_id,
-          expiresIn: "5m",
+          expiresIn: `${ACCESS_TOKEN_VALIBILITY}s`,
         },
         (err, token) => {
           if (err) return reject("Couldn`t generate access token!");
