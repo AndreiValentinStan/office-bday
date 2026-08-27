@@ -41,42 +41,44 @@ export default class Axios {
         (response) => response,
         async (error) => {
           const originalRequest = error.config;
-          if (originalRequest._retry && error.request.status !== 401) {
-            const errorMessage =
-              error?.response?.data?.error?.message || error?.message;
-            return Promise.reject({ message: errorMessage, logoff: false });
-          }
-          if (isRefreshing) {
-            return new Promise((res, rej) => {
-              requestsQueue.push({ resolve: res, reject: rej });
-            })
-              .then((token) => {
-                originalRequest.headers["Authorization"] = `Bearer=${token}`;
-                return Axios.axiosInstance(originalRequest);
+          
+          if (error?.response.status === 401 && error?.response?.data?.error?.message === "Access token error" && !originalRequest._retry) {
+            if (isRefreshing) {
+              return new Promise((res, rej) => {
+                requestsQueue.push({ resolve: res, reject: rej });
               })
-              .catch((err) =>
-                Promise.reject({ message: err.message, logoff: true }),
-              );
-          }
-          isRefreshing = true;
-          originalRequest._retry = true;
+                .then((token) => {
+                  originalRequest.headers["Authorization"] = `Bearer=${token}`;
+                  return Axios.axiosInstance(originalRequest);
+                })
+                .catch((err) =>
+                  Promise.reject({ message: err.message, logoff: true }),
+                );
+            }
+            isRefreshing = true;
+            originalRequest._retry = true;
 
-          try {
-            const {
-              data: { accessToken },
-            } = await axios.post("/api/auth/refresh-token");
+            try {
+              const {
+                data: { accessToken },
+              } = await axios.post("/api/auth/refresh-token");
 
-            Axios.setAccessToken(accessToken);
-            originalRequest.headers["Authorization"] = `Bearer=${accessToken}`;
-            processQueue(null, accessToken);
-            return Axios.axiosInstance(originalRequest);
-          } catch (err) {
-            const message = err?.response?.data?.error?.message || err?.message;
-            processQueue(err, null);
-            return Promise.reject({ message, logoff: true });
-          } finally {
-            isRefreshing = false;
+              Axios.setAccessToken(accessToken);
+              originalRequest.headers["Authorization"] =
+                `Bearer=${accessToken}`;
+              processQueue(null, accessToken);
+              return Axios.axiosInstance(originalRequest);
+            } catch (err) {
+              console.log({ err });
+              const message =
+                err?.response?.data?.error?.message || err?.message;
+              processQueue(err, null);
+              return Promise.reject({ message, logoff: true });
+            } finally {
+              isRefreshing = false;
+            }
           }
+          return Promise.reject({ message: error?.response?.data?.error?.message || "Unexpected error", logoff: false });
         },
       );
     }
